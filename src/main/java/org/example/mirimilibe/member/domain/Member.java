@@ -2,6 +2,8 @@ package org.example.mirimilibe.member.domain;
 
 import java.time.LocalDateTime;
 
+import org.example.mirimilibe.common.Enum.Status;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,7 +27,7 @@ public class Member {
 	private String nickname;
 
 	@Enumerated(EnumType.STRING)
-	//private Status status;
+	private Status status;
 
 	private String number;
 
