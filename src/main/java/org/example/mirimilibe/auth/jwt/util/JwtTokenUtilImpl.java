@@ -97,8 +97,8 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 			.authorities(authorities)
 			.memberId(member.getId())
 			.phoneNumber(member.getNumber())
-			.username(member.getNickname())
-			.password(member.getPassword()) // 비밀번호는 필요하지 않으므로 빈 문자열로 설정
+			.username(userId)
+			.password(member.getPassword())
 			.build();
 
 		return new UsernamePasswordAuthenticationToken(jwtMemberDetail, member.getPassword(), authorities);
