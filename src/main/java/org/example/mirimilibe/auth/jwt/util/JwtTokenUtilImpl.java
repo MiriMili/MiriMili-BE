@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -12,12 +13,11 @@ import javax.crypto.SecretKey;
 import org.example.mirimilibe.auth.jwt.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.repository.MemberRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
@@ -25,11 +25,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class JwtTokenUtilImpl implements JwtTokenUtil {
 
-	private static final Logger log = LoggerFactory.getLogger(JwtTokenUtilImpl.class);
 	private final SecretKey secretKey;
 	private final MemberRepository memberRepository;
 
@@ -98,6 +99,22 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 			.memberId(member.getId())
 			.phoneNumber(member.getNumber())
 			.username(userId)
+			.password(member.getPassword())
+			.build();
+
+		return new UsernamePasswordAuthenticationToken(jwtMemberDetail, member.getPassword(), authorities);
+	}
+
+	@Override
+	public Authentication createAuthentication(Member member){
+		List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
+
+		//2. 사용자 정보 클래스 생성
+		JwtMemberDetail jwtMemberDetail = JwtMemberDetail.jwtMemberDetailBuilder()
+			.authorities(authorities)
+			.memberId(member.getId())
+			.phoneNumber(member.getNumber())
+			.username(member.getId().toString())
 			.password(member.getPassword())
 			.build();
 

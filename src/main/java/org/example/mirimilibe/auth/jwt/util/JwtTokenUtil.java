@@ -2,6 +2,7 @@ package org.example.mirimilibe.auth.jwt.util;
 
 import java.util.Optional;
 
+import org.example.mirimilibe.member.domain.Member;
 import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,9 +15,11 @@ public interface JwtTokenUtil {
 
 	boolean validateToken(String token);
 
-	Optional<String> extractAccessToken(HttpServletRequest request);
-
 	Authentication getAuthentication(String token);
+
+	Authentication createAuthentication(Member member);
+
+	Optional<String> extractAccessToken(HttpServletRequest request);
 
 	Optional<String> extractId(String token);
 
