@@ -58,4 +58,4 @@ jobs:
           fi
 
           echo "🚀 $JAR_NAME 실행 중..."
-          nohup java -jar $JAR_NAME > app.log 2>&1 &
+          nohup java -jar $JAR_NAME > app.log 2>&1 & || true
