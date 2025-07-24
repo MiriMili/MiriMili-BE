@@ -51,7 +51,7 @@ jobs:
 
           echo "📦 이전 프로세스 종료 중..."
           if pgrep -f 'java -jar'; then
-            pkill -f 'java -jar'
+            pkill -f 'java -jar' || true
             echo "🔁 기존 프로세스 종료 완료"
           else
             echo "✅ 실행 중인 프로세스 없음"
