@@ -1,4 +1,4 @@
-package org.example.mirimilibe.auth.jwt.util;
+package org.example.mirimilibe.global.auth.jwt.util;
 
 import java.util.Optional;
 

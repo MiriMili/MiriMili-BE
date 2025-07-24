@@ -1,9 +1,9 @@
-package org.example.mirimilibe.auth.jwt.filter;
+package org.example.mirimilibe.global.auth.jwt.filter;
 
 import java.io.IOException;
 import java.util.List;
 
-import org.example.mirimilibe.auth.jwt.util.JwtTokenUtil;
+import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.springframework.security.core.Authentication;

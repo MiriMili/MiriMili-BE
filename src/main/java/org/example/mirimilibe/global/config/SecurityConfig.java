@@ -1,13 +1,12 @@
-package org.example.mirimilibe.common.config;
+package org.example.mirimilibe.global.config;
 
 import java.util.List;
 
-import org.example.mirimilibe.auth.jwt.filter.JsonAuthenticationFilter;
-import org.example.mirimilibe.auth.jwt.filter.JwtAuthenticationFilter;
-import org.example.mirimilibe.auth.jwt.handler.LoginFailureHandler;
-import org.example.mirimilibe.auth.jwt.handler.LoginSuccessHandler;
-import org.example.mirimilibe.auth.jwt.service.LoginService;
-import org.example.mirimilibe.auth.jwt.util.JwtTokenUtil;
+import org.example.mirimilibe.global.auth.jwt.filter.JsonAuthenticationFilter;
+import org.example.mirimilibe.global.auth.jwt.filter.JwtAuthenticationFilter;
+import org.example.mirimilibe.global.auth.jwt.handler.LoginFailureHandler;
+import org.example.mirimilibe.global.auth.jwt.handler.LoginSuccessHandler;
+import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

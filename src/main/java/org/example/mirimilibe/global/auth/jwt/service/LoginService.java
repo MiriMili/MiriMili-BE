@@ -1,14 +1,13 @@
-package org.example.mirimilibe.auth.jwt.service;
+package org.example.mirimilibe.global.auth.jwt.service;
 
 import java.util.List;
 
-import org.example.mirimilibe.auth.jwt.dto.JwtMemberDetail;
+import org.example.mirimilibe.global.auth.jwt.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

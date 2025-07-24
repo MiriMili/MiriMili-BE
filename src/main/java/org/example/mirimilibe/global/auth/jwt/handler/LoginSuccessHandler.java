@@ -1,9 +1,9 @@
-package org.example.mirimilibe.auth.jwt.handler;
+package org.example.mirimilibe.global.auth.jwt.handler;
 
 import java.io.IOException;
 
-import org.example.mirimilibe.auth.jwt.dto.LoginSuccessRes;
-import org.example.mirimilibe.auth.jwt.util.JwtTokenUtil;
+import org.example.mirimilibe.global.auth.jwt.dto.LoginSuccessRes;
+import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.error.CommonErrorCode;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;

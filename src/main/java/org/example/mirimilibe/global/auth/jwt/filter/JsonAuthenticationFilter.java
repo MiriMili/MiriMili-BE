@@ -1,8 +1,8 @@
-package org.example.mirimilibe.auth.jwt.filter;
+package org.example.mirimilibe.global.auth.jwt.filter;
 
 import java.io.IOException;
 
-import org.example.mirimilibe.auth.jwt.dto.LoginReq;
+import org.example.mirimilibe.global.auth.jwt.dto.LoginReq;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

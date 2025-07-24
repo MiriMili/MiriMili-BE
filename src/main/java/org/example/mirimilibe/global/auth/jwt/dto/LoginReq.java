@@ -1,4 +1,4 @@
-package org.example.mirimilibe.auth.jwt.dto;
+package org.example.mirimilibe.global.auth.jwt.dto;
 
 public record LoginReq(
 	String phoneNumber,

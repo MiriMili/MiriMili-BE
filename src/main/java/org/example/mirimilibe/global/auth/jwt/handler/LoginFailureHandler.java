@@ -1,4 +1,4 @@
-package org.example.mirimilibe.auth.jwt.handler;
+package org.example.mirimilibe.global.auth.jwt.handler;
 
 import java.io.IOException;
 import java.util.Map;
