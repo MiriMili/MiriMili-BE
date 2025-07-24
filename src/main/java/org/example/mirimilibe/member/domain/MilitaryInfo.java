@@ -2,6 +2,7 @@ package org.example.mirimilibe.member.domain;
 
 import java.util.Date;
 
+import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.common.Enum.MiliType;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.common.domain.Unit;
@@ -29,6 +30,9 @@ public class MilitaryInfo {
 	@OneToOne
 	@JoinColumn(name = "member_id")
 	private Member member;
+
+	@Enumerated(EnumType.STRING)
+	private MiliStatus miliStatus;
 
 	@Enumerated(EnumType.STRING)
 	private MiliType miliType;
