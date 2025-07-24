@@ -27,9 +27,9 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ${{ secrets.EC2_USER }}
         key: ${{ secrets.EC2_KEY }}
-        source: "build/libs/*.jar"
+        source: "build/libs"
         target: "/home/${{ secrets.EC2_USER }}/app/"
-        strip_components: 3
+        strip_components: 2
 
     - name: 🚀 SSH and Run on EC2
       uses: appleboy/ssh-action@master
@@ -39,7 +39,12 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         script: |
           cd ~/app
-          JAR_NAME=$(ls *.jar | head -n 1)
+          JAR_NAME=$(find . -name "*.jar" | head -n 1 | sed 's|./||')
+
+          if [ -z "$JAR_NAME" ]; then
+            echo "❌ No JAR file found!"
+            exit 1
+          fi
 
           echo "📦 Kill old process..."
           pkill -f 'java -jar' || true
