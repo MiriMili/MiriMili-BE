@@ -42,7 +42,7 @@ jobs:
           echo "📂 현재 디렉토리 상태:"
           ls -al
 
-          JAR_NAME=$(find . -name "*.jar" | head -n 1 | sed 's|./||')
+          JAR_NAME=$(find . -name "*.jar" | grep -v 'plain' | head -n 1 | sed 's|./||')
 
           if [ -z "$JAR_NAME" ]; then
             echo "❌ .jar 파일을 찾을 수 없습니다!"
@@ -50,10 +50,12 @@ jobs:
           fi
 
           echo "📦 이전 프로세스 종료 중..."
-          pkill -f 'java -jar' || true
+          if pgrep -f 'java -jar'; then
+            pkill -f 'java -jar'
+            echo "🔁 기존 프로세스 종료 완료"
+          else
+            echo "✅ 실행 중인 프로세스 없음"
+          fi
 
           echo "🚀 $JAR_NAME 실행 중..."
           nohup java -jar $JAR_NAME > app.log 2>&1 &
-
-          echo "✅ 배포 완료!"
-          true  # 종료 코드 0 보장
