@@ -39,15 +39,21 @@ jobs:
         key: ${{ secrets.EC2_KEY }}
         script: |
           cd ~/app
+          echo "📂 현재 디렉토리 상태:"
+          ls -al
+
           JAR_NAME=$(find . -name "*.jar" | head -n 1 | sed 's|./||')
 
           if [ -z "$JAR_NAME" ]; then
-            echo "❌ No JAR file found!"
+            echo "❌ .jar 파일을 찾을 수 없습니다!"
             exit 1
           fi
 
-          echo "📦 Kill old process..."
+          echo "📦 이전 프로세스 종료 중..."
           pkill -f 'java -jar' || true
 
-          echo "🚀 Running $JAR_NAME..."
+          echo "🚀 $JAR_NAME 실행 중..."
           nohup java -jar $JAR_NAME > app.log 2>&1 &
+
+          echo "✅ 배포 완료!"
+          true  # 종료 코드 0 보장
