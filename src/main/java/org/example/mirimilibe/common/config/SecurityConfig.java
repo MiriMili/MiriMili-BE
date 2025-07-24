@@ -1,5 +1,7 @@
 package org.example.mirimilibe.common.config;
 
+import java.util.List;
+
 import org.example.mirimilibe.auth.jwt.filter.JsonAuthenticationFilter;
 import org.example.mirimilibe.auth.jwt.filter.JwtAuthenticationFilter;
 import org.example.mirimilibe.auth.jwt.handler.LoginFailureHandler;
@@ -45,7 +47,8 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 인증 비활성화
 			.cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/auth/**").permitAll() // 인증 관련 엔드포인트는 모두 허용
+				.requestMatchers("/auth/signup").permitAll() // 회원가입 허용
+				.requestMatchers("/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
 				.anyRequest().authenticated() // 나머지 요청은 인증 필요
 			);
 
@@ -60,10 +63,16 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.addAllowedOriginPattern("*"); // 모든 출처 허용
+
 		configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
 		configuration.addAllowedHeader("*"); // 모든 헤더 허용
 		configuration.setAllowCredentials(true); // 자격 증명 허용
+		configuration.addExposedHeader("Authorization"); // 클라이언트가 Authorization 헤더를 읽을 수 있도록 허용
+
+		configuration.setAllowedOrigins(List.of(
+			"http://localhost:3000",
+			"http://localhost:8080"
+		));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration); // 모든 경로에 CORS 설정 적용

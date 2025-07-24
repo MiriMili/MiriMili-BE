@@ -83,10 +83,10 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		//1. 토큰에서 Claims 추출
 		Claims claims = extractClaims(token);
 
-		//2. 사용자 ID와 전화번호 추출
-		String userId = claims.get("id", String.class);
+		//2. 사용자 ID 추출, Member 객체 조회
+		Long userId = claims.get("id", Long.class);
 
-		Member member=memberRepository.findById(Long.valueOf(userId))
+		Member member=memberRepository.findById(userId)
 			.orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
 		Collection<? extends GrantedAuthority> authorities= Arrays.stream(claims.get("auth", String.class).split(","))
@@ -98,7 +98,7 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 			.authorities(authorities)
 			.memberId(member.getId())
 			.phoneNumber(member.getNumber())
-			.username(userId)
+			.username(claims.getSubject())
 			.password(member.getPassword())
 			.build();
 

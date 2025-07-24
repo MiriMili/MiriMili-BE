@@ -25,7 +25,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	protected List<String> filterPassList=List.of(
 		"/auth/login",
-		"/auth/signup"
+		"/auth/signup",
+		"/webjars/**",
+		"/v3/api-docs"
 	);
 
 	@Override
@@ -62,6 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		try {
 			authentication = jwtTokenUtil.getAuthentication(accessToken);
 			log.info("인증된 사용자: {}", authentication.getName());
+
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			response.setHeader("Authorization", GRANT_TYPE + accessToken);
 
@@ -77,6 +80,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			return;
 		}catch (Exception e) {
 			//6. 토큰이 유효하지 않은 경우 예외 처리
+			log.error("유효하지 않은 access-token: {}", accessToken, e);
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			response.setContentType("application/json;charset=UTF-8");
 			response.getWriter().write("access-token이 유효하지 않습니다.");
