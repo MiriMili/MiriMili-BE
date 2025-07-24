@@ -31,34 +31,17 @@ jobs:
           target: "/home/${{ secrets.EC2_USER }}/app/"
           strip_components: 2
 
-      - name: 🚀 SSH and Run on EC2
+      - name: 🚀 SSH and Restart Service on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cd ~/app
-            echo "📂 현재 디렉토리 상태:"
-            ls -al
+            sudo systemctl stop mirimili.service || true
+            sudo cp ~/app/MiriMili-BE-0.0.1-SNAPSHOT.jar ~/app/MiriMili-BE-0.0.1-SNAPSHOT.jar.bak
+            echo "✅ 기존 파일 백업 완료"
+            echo "♻️ 서비스 재시작 중..."
+            sudo systemctl restart mirimili.service
+            sudo systemctl status mirimili.service --no-pager
 
-            JAR_NAME=$(find . -name "*.jar" | grep -v 'plain' | head -n 1 | sed 's|./||')
-
-            if [ -z "$JAR_NAME" ]; then
-              echo "❌ .jar 파일을 찾을 수 없습니다!"
-              exit 1
-            fi
-
-            echo "📦 이전 프로세스 종료 중..."
-            if pgrep -f 'java -jar'; then
-              pkill -f 'java -jar'
-              echo "🔁 기존 프로세스 종료 완료"
-            else
-              echo "✅ 실행 중인 프로세스 없음"
-            fi
-
-            echo "🚀 $JAR_NAME 실행 중..."
-            nohup java -jar $JAR_NAME > app.log 2>&1 &
-
-            echo "✅ 배포 완료!"
-            exit 0
