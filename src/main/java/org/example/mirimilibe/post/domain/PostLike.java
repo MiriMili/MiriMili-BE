@@ -29,6 +29,6 @@ public class PostLike {
 	@JoinColumn(name = "post_id")
 	private Post post;
 
-	private String isDislike;
-	private String isLike;
+	private boolean isDislike;
+	private boolean isLike;
 }
