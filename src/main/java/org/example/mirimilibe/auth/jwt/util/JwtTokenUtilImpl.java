@@ -11,6 +11,8 @@ import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 
 import org.example.mirimilibe.auth.jwt.dto.JwtMemberDetail;
+import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -87,7 +89,7 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		Long userId = claims.get("id", Long.class);
 
 		Member member=memberRepository.findById(userId)
-			.orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		Collection<? extends GrantedAuthority> authorities= Arrays.stream(claims.get("auth", String.class).split(","))
 			.map(authority -> (GrantedAuthority) () -> authority)

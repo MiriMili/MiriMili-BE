@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import org.example.mirimilibe.auth.jwt.dto.LoginSuccessRes;
 import org.example.mirimilibe.auth.jwt.util.JwtTokenUtil;
+import org.example.mirimilibe.global.error.CommonErrorCode;
+import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.security.core.Authentication;
@@ -39,7 +42,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
 		//2. 사용자 정보를 기반으로 Member 객체를 조회합니다.
 		Member member = memberRepository.findById(Long.valueOf(userDetail.getUsername()))
-			.orElseThrow(() -> new RuntimeException("no such member"));
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		//3. Member 객체를 사용하여 Authentication 객체를 생성합니다.
 		Authentication genAuthentication = jwtTokenProvider.createAuthentication(member);
@@ -58,7 +61,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 			String responseBody = objectMapper.writeValueAsString(loginSuccessRes);
 			response.getWriter().write(responseBody);
 		} catch (IOException e) {
-			throw new RuntimeException(e);
+			throw new MiriMiliException(CommonErrorCode.INTERNAL_SERVER_ERROR);
 		}
 
 	}

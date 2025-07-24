@@ -27,8 +27,6 @@ public class JsonAuthenticationFilter extends AbstractAuthenticationProcessingFi
 	private static final String CONTENT_TYPE = "application/json";
 	private static final String HTTP_METHOD = "POST";
 
-	private static final String PHONE_NUMBER = "phoneNumber";
-	private static final String PASSWORD = "password";
 	private final ObjectMapper objectMapper;
 
 	private static final RequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER = request ->

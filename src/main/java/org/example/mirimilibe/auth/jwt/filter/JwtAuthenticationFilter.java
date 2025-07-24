@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.example.mirimilibe.auth.jwt.util.JwtTokenUtil;
+import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -47,10 +49,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			.orElse(null);
 
 		if (accessToken == null) {
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json;charset=UTF-8");
-			response.getWriter().write("{\"message\": \"access-token이 존재하지 않습니다.\"}");
-			return;
+			log.warn("Authorization 헤더에 access-token이 없습니다.");
+			throw new MiriMiliException(MemberErrorCode.ACCESS_TOKEN_NOT_FOUND);
 		}
 
 		//4. 토큰에서 사용자 정보 추출
@@ -72,19 +72,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		}catch(ExpiredJwtException e){
 			log.error("만료된 access-token: {}", accessToken);
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json;charset=UTF-8");
-			response.getWriter().write("{\"message\": \"access-token이 만료되었습니다.\"}");
+			throw new MiriMiliException(MemberErrorCode.ACCESS_EXPIRED);
 			// TODO: 추후 refresh-token 관련 처리 추가
 
-			return;
 		}catch (Exception e) {
 			//6. 토큰이 유효하지 않은 경우 예외 처리
 			log.error("유효하지 않은 access-token: {}", accessToken, e);
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json;charset=UTF-8");
-			response.getWriter().write("access-token이 유효하지 않습니다.");
-			return;
+			throw new MiriMiliException(MemberErrorCode.ACCESS_FORBIDDEN);
 		}
 
 

@@ -3,6 +3,8 @@ package org.example.mirimilibe.auth.jwt.service;
 import java.util.List;
 
 import org.example.mirimilibe.auth.jwt.dto.JwtMemberDetail;
+import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -24,7 +26,7 @@ public class LoginService implements UserDetailsService {
 	@Override
 	public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
 		Member member = memberRepository.findByNumber(phoneNumber)
-			.orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		return JwtMemberDetail.jwtMemberDetailBuilder()
 			.memberId(member.getId())
