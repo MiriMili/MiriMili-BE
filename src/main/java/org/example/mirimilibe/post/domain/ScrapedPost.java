@@ -1,6 +1,7 @@
 package org.example.mirimilibe.post.domain;
 
 import org.example.mirimilibe.member.domain.Member;
+import org.example.mirimilibe.post.domain.Post;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,19 +14,19 @@ import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "comment_like")
+@Table(name = "scraped_post")
 @NoArgsConstructor
 @AllArgsConstructor
-public class CommentLike {
+public class ScrapedPost {
 	@Id
 	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "member_id")
+	@JoinColumn(name = "member_id", nullable = false)
 	private Member member;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
+	@JoinColumn(name = "post_id", nullable = false)
 	private Post post;
 }
