@@ -1,4 +1,4 @@
-package org.example.mirimilibe.global.auth.jwt.dto;
+package org.example.mirimilibe.global.auth.dto;
 
 public record LoginSuccessRes(
 	String accessToken,

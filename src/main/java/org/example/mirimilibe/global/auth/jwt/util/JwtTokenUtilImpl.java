@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
 
-import org.example.mirimilibe.global.auth.jwt.dto.JwtMemberDetail;
+import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;

@@ -50,7 +50,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		if (accessToken == null) {
 			log.warn("Authorization 헤더에 access-token이 없습니다.");
-			throw new MiriMiliException(MemberErrorCode.ACCESS_TOKEN_NOT_FOUND);
+			//throw new MiriMiliException(MemberErrorCode.ACCESS_TOKEN_NOT_FOUND);
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json;charset=UTF-8");
+			return;
 		}
 
 		//4. 토큰에서 사용자 정보 추출

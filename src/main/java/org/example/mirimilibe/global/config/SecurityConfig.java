@@ -2,10 +2,7 @@ package org.example.mirimilibe.global.config;
 
 import java.util.List;
 
-import org.example.mirimilibe.global.auth.jwt.filter.JsonAuthenticationFilter;
 import org.example.mirimilibe.global.auth.jwt.filter.JwtAuthenticationFilter;
-import org.example.mirimilibe.global.auth.jwt.handler.LoginFailureHandler;
-import org.example.mirimilibe.global.auth.jwt.handler.LoginSuccessHandler;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
@@ -46,14 +43,14 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 인증 비활성화
 			.cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/auth/signup").permitAll() // 회원가입 허용
+				.requestMatchers("/auth/signup", "/auth/login").permitAll()
 				.requestMatchers("/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
 				.anyRequest().authenticated() // 나머지 요청은 인증 필요
 			);
 
 
 		httpSecurity
-			.addFilterBefore(jsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
+			//.addFilterBefore(jsonAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
 			.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
 		return httpSecurity.build();
@@ -82,27 +79,6 @@ public class SecurityConfig {
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
 		return new JwtAuthenticationFilter(jwtTokenUtil);
-	}
-
-	@Bean
-	public JsonAuthenticationFilter jsonAuthenticationFilter() {
-		JsonAuthenticationFilter jsonAuthenticationFilter = new JsonAuthenticationFilter(objectMapper);
-
-		jsonAuthenticationFilter.setAuthenticationManager(authenticationManager());
-		jsonAuthenticationFilter.setAuthenticationSuccessHandler(loginSuccessHandler());
-		jsonAuthenticationFilter.setAuthenticationFailureHandler(loginFailureHandler());
-
-		return jsonAuthenticationFilter;
-	}
-
-	@Bean
-	public LoginSuccessHandler loginSuccessHandler() {
-		return new LoginSuccessHandler(memberRepository, jwtTokenUtil, objectMapper);
-	}
-
-	@Bean
-	public LoginFailureHandler loginFailureHandler() {
-		return new LoginFailureHandler(objectMapper);
 	}
 
 	@Bean

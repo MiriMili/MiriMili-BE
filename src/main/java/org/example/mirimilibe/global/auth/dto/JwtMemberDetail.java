@@ -1,4 +1,4 @@
-package org.example.mirimilibe.global.auth.jwt.dto;
+package org.example.mirimilibe.global.auth.dto;
 
 import java.util.Collection;
 
