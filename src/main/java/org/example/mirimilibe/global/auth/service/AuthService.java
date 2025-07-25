@@ -8,6 +8,7 @@ import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.global.auth.dto.SignUpReq;
 import org.example.mirimilibe.member.repository.MemberRepository;
+import org.example.mirimilibe.member.service.MemberService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,11 +26,14 @@ public class AuthService {
 	private final BCryptPasswordEncoder passwordEncoder;
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenUtil jwtTokenUtil;
+	private final MemberService memberService;
 
 	public void signUp(SignUpReq signUpReq) {
 		//1. 유효성 검사
-		//1-1. 전화번호 중복 검사
-		//1-2. 닉네임 중복 검사
+		if (!signUpReq.serviceAgreed() || !signUpReq.privacyPolicyAgreed()) {
+			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
+		}
+
 
 		//2. 비밀번호 암호화
 		String encodedPassword = passwordEncoder.encode(signUpReq.password());
@@ -42,6 +46,10 @@ public class AuthService {
 
 		//3. 회원 정보 저장
 		memberRepository.save(member);
+
+		//4. 군 정보 저장
+		memberService.updateMilitaryInfo(signUpReq.militaryInfoReq(), member);
+
 	}
 
 	@Transactional(readOnly = true)

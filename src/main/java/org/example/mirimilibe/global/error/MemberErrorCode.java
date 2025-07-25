@@ -16,6 +16,9 @@ public enum MemberErrorCode implements ErrorCode{
 	DUPLICATE_AUTHORIZE_CODE(HttpStatus.BAD_REQUEST,"ACCESS402","인가 코드 중복 사용"),
 	ACCESS_FORBIDDEN(HttpStatus.FORBIDDEN,"ACCESS403","탈퇴한 회원입니다."),
 	MILITARY_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404-2", "군 정보를 찾을 수 없습니다."),
+	UNIT_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404-3", "부대를 찾을 수 없습니다."),
+	SPECIALTY_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404-4", "특기를 찾을 수 없습니다."),
+	MILITARY_INFO_CANNOT_UPDATE(HttpStatus.BAD_REQUEST, "MEMBER400-2", "입력된 정보는 수정할 수 없습니다."),
 
 	MATCH_NOT_FOUND(HttpStatus.NOT_FOUND,"MATCH404","이용내역을 찾을 수 없습니다.");
 
