@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.core.util.Json;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,7 +28,7 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<?> signUp(@RequestBody SignUpReq signUpReq) {
+	public ResponseEntity<?> signUp(@RequestBody @Valid SignUpReq signUpReq) {
 		authService.signUp(signUpReq);
 		return ResponseEntity.ok("회원가입 성공");
 	}

@@ -1,5 +1,12 @@
 package org.example.mirimilibe.global.auth.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
+
+import org.example.mirimilibe.common.Enum.Status;
+import org.example.mirimilibe.common.Enum.TermType;
 import org.example.mirimilibe.global.auth.dto.LoginReq;
 import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
@@ -7,7 +14,9 @@ import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.global.auth.dto.SignUpReq;
+import org.example.mirimilibe.member.domain.MemberTerm;
 import org.example.mirimilibe.member.repository.MemberRepository;
+import org.example.mirimilibe.member.repository.MemberTermRepository;
 import org.example.mirimilibe.member.service.MemberService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,27 +36,46 @@ public class AuthService {
 	private final AuthenticationManager authenticationManager;
 	private final JwtTokenUtil jwtTokenUtil;
 	private final MemberService memberService;
+	private final MemberTermRepository memberTermRepository;
 
 	public void signUp(SignUpReq signUpReq) {
-		//1. 유효성 검사
+		//1. 약관 동의 검사
 		if (!signUpReq.serviceAgreed() || !signUpReq.privacyPolicyAgreed()) {
 			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
 		}
 
-
 		//2. 비밀번호 암호화
 		String encodedPassword = passwordEncoder.encode(signUpReq.password());
 
-		Member member= Member.builder()
+		LocalDateTime now = LocalDateTime.now();
+
+		Member member = Member.builder()
 			.number(signUpReq.phoneNumber())
 			.password(encodedPassword)
 			.nickname(signUpReq.nickname())
+			.status(Status.ACTIVE)
+			.createdAt(now)
 			.build();
 
 		//3. 회원 정보 저장
 		memberRepository.save(member);
 
-		//4. 군 정보 저장
+		//4. 약관 동의 정보 저장
+		List<MemberTerm> memberTerms = Stream.of(
+				TermType.SERVICE,
+				TermType.PRIVACY,
+				signUpReq.marketingConsentAgreed() ? TermType.MARKETING : null)
+			.filter(Objects::nonNull)
+			.map(type -> MemberTerm.builder()
+				.member(member)
+				.termType(type)
+				.agreedAt(now)
+				.build())
+			.toList();
+
+		memberTermRepository.saveAll(memberTerms);
+
+		//5. 군 정보 저장
 		memberService.updateMilitaryInfo(signUpReq.militaryInfoReq(), member);
 
 	}
