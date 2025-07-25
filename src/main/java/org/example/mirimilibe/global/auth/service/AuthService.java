@@ -27,7 +27,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -102,11 +104,15 @@ public class AuthService {
 			Authentication newAuth = jwtTokenUtil.createAuthentication(member);
 			String accessToken = jwtTokenUtil.generateAccessToken(newAuth);
 
-			// 4. 결과 반환
+			// 4. 로그인 성공 로그
+			log.info("로그인 성공: 전화번호={}, 사용자 ID={}", loginReq.phoneNumber(), member.getId());
+
+			// 5. 결과 반환
 			return LoginSuccessRes.of(accessToken, member.getNickname());
 		}
 		catch (Exception e) {
 			// 인증 실패 시 예외 처리
+			log.warn("로그인 실패: 전화번호={}, {}", loginReq.phoneNumber(), e.getMessage());
 			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
 		}
 	}
