@@ -11,14 +11,12 @@ import lombok.Getter;
 @Getter
 public class JwtMemberDetail extends User {
 	private final Long memberId;
-	private final String phoneNumber;
 
 	@Builder(builderMethodName = "jwtMemberDetailBuilder")
-	public JwtMemberDetail(Long memberId, String phoneNumber, String username, String password,
+	public JwtMemberDetail(Long memberId, String username, String password,
 		Collection<? extends GrantedAuthority> authorities) {
 		super(username, password, authorities);
 		this.memberId = memberId;
-		this.phoneNumber = phoneNumber;
 	}
 
 }

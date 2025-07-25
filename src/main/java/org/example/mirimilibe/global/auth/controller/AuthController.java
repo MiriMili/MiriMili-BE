@@ -43,12 +43,10 @@ public class AuthController {
 	public ResponseEntity<?> getUserDetail(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
 		// 테스트용으로 현재 로그인한 사용자의 정보를 반환
 		// 실제로는 인증된 사용자 정보를 가져오는 로직이 필요합니다.
-		String phoneNumber = jwtMemberDetail.getPhoneNumber();
 		Long userId=jwtMemberDetail.getMemberId();
 
 		return ResponseEntity.ok(Json.pretty(
 			Member.builder()
-				.number(phoneNumber)
 				.id(userId)
 				.build()
 		));

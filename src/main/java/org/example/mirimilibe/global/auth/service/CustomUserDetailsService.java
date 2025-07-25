@@ -29,7 +29,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 		return JwtMemberDetail.jwtMemberDetailBuilder()
 			.memberId(member.getId())
-			.phoneNumber(member.getNumber())
 			.username(member.getId().toString())
 			.password(member.getPassword())
 			.authorities(List.of(new SimpleGrantedAuthority("ROLE_USER")))

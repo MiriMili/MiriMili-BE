@@ -66,7 +66,6 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 			.subject(authentication.getName())
 			.claim("auth", authorities)
 			.claim("id", jwtMemberDetail.getMemberId())
-			.claim("phoneNumber", jwtMemberDetail.getPhoneNumber())
 			.signWith(secretKey)
 			.expiration(Date.from(Instant.now().plusMillis(accessExpiration * 1000)))
 			.compact();
@@ -99,7 +98,6 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		JwtMemberDetail jwtMemberDetail = JwtMemberDetail.jwtMemberDetailBuilder()
 			.authorities(authorities)
 			.memberId(member.getId())
-			.phoneNumber(member.getNumber())
 			.username(claims.getSubject())
 			.password(member.getPassword())
 			.build();
@@ -115,7 +113,6 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		JwtMemberDetail jwtMemberDetail = JwtMemberDetail.jwtMemberDetailBuilder()
 			.authorities(authorities)
 			.memberId(member.getId())
-			.phoneNumber(member.getNumber())
 			.username(member.getId().toString())
 			.password(member.getPassword())
 			.build();
@@ -137,10 +134,6 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		return Optional.ofNullable(extractClaims(token).get("id", String.class));
 	}
 
-	@Override
-	public Optional<String> extractPhoneNumber(String token) {
-		return Optional.ofNullable(extractClaims(token).get("phoneNumber", String.class));
-	}
 
 	@Override
 	public boolean validateToken(String token) {

@@ -23,5 +23,4 @@ public interface JwtTokenUtil {
 
 	Optional<String> extractId(String token);
 
-	Optional<String> extractPhoneNumber(String token);
 }
