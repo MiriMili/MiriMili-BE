@@ -1,5 +1,8 @@
 package org.example.mirimilibe.member.service;
 
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.common.domain.Unit;
 import org.example.mirimilibe.global.error.MemberErrorCode;
@@ -37,8 +40,13 @@ public class MemberService {
 			return;
 		}
 
-		Specialty specialty=specialtyRepository.findById(militaryInfoReq.specialtyId()).orElse(null);
-		Unit unit=unitRepository.findById(militaryInfoReq.unitId()).orElse(null);
+		Specialty specialty = Optional.ofNullable(militaryInfoReq.specialtyId())
+			.flatMap(specialtyRepository::findById)
+			.orElse(null);
+
+		Unit unit = Optional.ofNullable(militaryInfoReq.unitId())
+			.flatMap(unitRepository::findById)
+			.orElse(null);
 
 		// 2. MilitaryInfoReq를 MilitaryInfo에 적용
 		applyImmutableFields(militaryInfo, militaryInfoReq, specialty, unit);
@@ -48,51 +56,24 @@ public class MemberService {
 	}
 
 	public void applyImmutableFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
-		// 필드 별 비교 및 설정
-		// 기존 값이 null인 경우에만 설정, 기존값이 null이 아니고 기존값과 다른 경우 예외 발생
-		if (info.getMiliType() == null) {
-			info.setMiliType(req.type());
-		} else if (!info.getMiliType().equals(req.type())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
+		miliInfoValidateAndSet(info.getMiliType(), req.type(), info::setMiliType);
+		miliInfoValidateAndSet(info.getMiliStatus(), req.status(), info::setMiliStatus);
+		miliInfoValidateAndSet(info.getSpecialty(), specialty, info::setSpecialty);
+		miliInfoValidateAndSet(info.getUnit(), unit, info::setUnit);
+		miliInfoValidateAndSet(info.getStartDate(), req.startDate(), info::setStartDate);
+		miliInfoValidateAndSet(info.getPrivateDate(), req.privateDate(), info::setPrivateDate);
+		miliInfoValidateAndSet(info.getCorporalDate(), req.corporalDate(), info::setCorporalDate);
+		miliInfoValidateAndSet(info.getSergeantDate(), req.sergeantDate(), info::setSergeantDate);
+		miliInfoValidateAndSet(info.getDischargeDate(), req.dischargeDate(), info::setDischargeDate);
+	}
+
+	private <T> void miliInfoValidateAndSet(T currentValue, T newValue, Consumer<T> setter) {
+		if (newValue == null) {
+			return;
 		}
-		if (info.getMiliStatus() == null) {
-			info.setMiliStatus(req.status());
-		} else if (!info.getMiliStatus().equals(req.status())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-		if (info.getSpecialty() == null) {
-			info.setSpecialty(specialty);
-		} else if (!info.getSpecialty().equals(specialty)) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-		if (info.getUnit() == null) {
-			info.setUnit(unit);
-		} else if (!info.getUnit().equals(unit)) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-		if (info.getStartDate() == null) {
-			info.setStartDate(req.startDate());
-		} else if (!info.getStartDate().equals(req.startDate())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-		if (info.getPrivateDate() == null) {
-			info.setPrivateDate(req.privateDate());
-		} else if (!info.getPrivateDate().equals(req.privateDate())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-		if (info.getCorporalDate() == null) {
-			info.setCorporalDate(req.corporalDate());
-		} else if (!info.getCorporalDate().equals(req.corporalDate())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-		if (info.getSergeantDate() == null) {
-			info.setSergeantDate(req.sergeantDate());
-		} else if (!info.getSergeantDate().equals(req.sergeantDate())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-		if (info.getDischargeDate() == null) {
-			info.setDischargeDate(req.dischargeDate());
-		} else if (!info.getDischargeDate().equals(req.dischargeDate())) {
+		if (currentValue == null) {
+			setter.accept(newValue);
+		} else if (!currentValue.equals(newValue)) {
 			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
 		}
 	}
