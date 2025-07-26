@@ -10,13 +10,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "scraped_post")
+@Table(name = "scraped_post", uniqueConstraints = @UniqueConstraint(columnNames = {"member_id", "post_id"}))
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class ScrapedPost {
 	@Id
 	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
