@@ -6,8 +6,11 @@ import java.util.List;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -24,25 +27,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtTokenUtil jwtTokenUtil;
 
 	private static final String GRANT_TYPE = "Bearer ";
+	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
 	protected List<String> filterPassList=List.of(
 		"/auth/login",
 		"/auth/signup",
-		"/webjars/**",
-		"/v3/api-docs"
+		"/swagger-ui/**",
+		"/swagger-resources/**",
+		"/v3/api-docs/**"
 	);
+
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		//1. 필터링 제외 경로 설정
+		String requestURI = request.getRequestURI();
+		return filterPassList.stream().anyMatch(pattern->pathMatcher.match(pattern, requestURI));
+	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
-		// JWT 토큰을 추출하고 검증하는 로직을 여기에 추가합니다.
 
-		//1. 요청 URL이 필터링 대상인지 확인
-		if(filterPassList.contains(request.getRequestURI()) || request.getRequestURI().contains("swagger")) {
-			// 필터링 대상이면 다음 필터로 넘어감
-			filterChain.doFilter(request, response);
-			return;
-		}
 
 		//2. Authorization 헤더에서 JWT 토큰 추출
 		String accessToken = jwtTokenUtil.extractAccessToken(request)
