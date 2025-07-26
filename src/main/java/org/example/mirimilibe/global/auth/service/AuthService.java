@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import org.example.mirimilibe.common.Enum.Status;
 import org.example.mirimilibe.common.Enum.TermType;
+import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.auth.dto.LoginReq;
 import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
@@ -45,6 +46,9 @@ public class AuthService {
 		if (!signUpReq.serviceAgreed() || !signUpReq.privacyPolicyAgreed()) {
 			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
 		}
+
+		checkDuplicatePhoneNumber(signUpReq.phoneNumber());
+		checkDuplicateNickname(signUpReq.nickname());
 
 		//2. 비밀번호 암호화
 		String encodedPassword = passwordEncoder.encode(signUpReq.password());
@@ -94,8 +98,8 @@ public class AuthService {
 			);
 
 			// 2. 인증된 사용자 정보 추출
-			UserDetails userDetails = (UserDetails)authentication.getPrincipal();
-			Long memberId = Long.valueOf(userDetails.getUsername());
+			JwtMemberDetail userDetails = (JwtMemberDetail)authentication.getPrincipal();
+			Long memberId = userDetails.getMemberId();
 
 			Member member = memberRepository.findById(memberId)
 				.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -114,6 +118,18 @@ public class AuthService {
 			// 인증 실패 시 예외 처리
 			log.warn("로그인 실패: 전화번호={}, {}", loginReq.phoneNumber(), e.getMessage());
 			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
+		}
+	}
+
+	public void checkDuplicatePhoneNumber(String phoneNumber) {
+		if (memberRepository.existsByNumber(phoneNumber)) {
+			throw new MiriMiliException(MemberErrorCode.DUPLICATE_PHONE_NUMBER);
+		}
+	}
+
+	public void checkDuplicateNickname(String nickname) {
+		if (memberRepository.existsByNickname(nickname)) {
+			throw new MiriMiliException(MemberErrorCode.DUPLICATE_NICKNAME);
 		}
 	}
 
