@@ -12,6 +12,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
+
+	List<Comment> findAllByWriterId(Long memberId);
+
 	Long countByPostId(Long postId);
 
 	List<Comment> findAllByPost(Post post);
