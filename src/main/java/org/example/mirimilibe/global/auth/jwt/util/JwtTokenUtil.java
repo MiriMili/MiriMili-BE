@@ -21,6 +21,4 @@ public interface JwtTokenUtil {
 
 	Optional<String> extractAccessToken(HttpServletRequest request);
 
-	Optional<String> extractId(String token);
-
 }

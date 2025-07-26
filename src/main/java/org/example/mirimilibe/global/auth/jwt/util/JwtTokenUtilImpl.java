@@ -63,9 +63,8 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 
 		//2. 사용자 정보 클래스 생성
 		String accessToken= Jwts.builder()
-			.subject(authentication.getName())
+			.subject(jwtMemberDetail.getMemberId().toString())
 			.claim("auth", authorities)
-			.claim("id", jwtMemberDetail.getMemberId())
 			.signWith(secretKey)
 			.expiration(Date.from(Instant.now().plusMillis(accessExpiration * 1000)))
 			.compact();
@@ -85,7 +84,7 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		Claims claims = extractClaims(token);
 
 		//2. 사용자 ID 추출, Member 객체 조회
-		Long userId = claims.get("id", Long.class);
+		Long userId = Long.valueOf(claims.getSubject());
 
 		Member member=memberRepository.findById(userId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -98,7 +97,7 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		JwtMemberDetail jwtMemberDetail = JwtMemberDetail.jwtMemberDetailBuilder()
 			.authorities(authorities)
 			.memberId(member.getId())
-			.username(claims.getSubject())
+			.username(member.getNumber())
 			.password(member.getPassword())
 			.build();
 
@@ -113,7 +112,7 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 		JwtMemberDetail jwtMemberDetail = JwtMemberDetail.jwtMemberDetailBuilder()
 			.authorities(authorities)
 			.memberId(member.getId())
-			.username(member.getId().toString())
+			.username(member.getNumber())
 			.password(member.getPassword())
 			.build();
 
@@ -127,11 +126,6 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 				token.startsWith(GRANT_TYPE))
 			.map(token ->
 				token.replace(GRANT_TYPE, ""));
-	}
-
-	@Override
-	public Optional<String> extractId(String token) {
-		return Optional.ofNullable(extractClaims(token).get("id", String.class));
 	}
 
 
