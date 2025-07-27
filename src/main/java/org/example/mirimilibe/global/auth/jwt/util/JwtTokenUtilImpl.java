@@ -52,11 +52,7 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 
 	@Override
 	public String generateAccessToken(Authentication authentication) {
-		//1. 인증 정보에서 권한 추출
-		String authorities=authentication.getAuthorities().stream()
-			.map(GrantedAuthority::getAuthority)
-			.collect(Collectors.joining(","));
-
+		//1. 인증 정보에서 사용자 ID 추출
 		JwtMemberDetail jwtMemberDetail = (JwtMemberDetail) authentication.getPrincipal();
 
 		//2. JWT 토큰 생성
