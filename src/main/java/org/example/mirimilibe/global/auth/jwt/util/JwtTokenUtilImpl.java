@@ -57,14 +57,11 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.joining(","));
 
-		//1.2. JwtMemberDetail 생성
-		//2. 사용자 정보 클래스 생성
 		JwtMemberDetail jwtMemberDetail = (JwtMemberDetail) authentication.getPrincipal();
 
-		//2. 사용자 정보 클래스 생성
+		//2. JWT 토큰 생성
 		String accessToken= Jwts.builder()
-			.subject(jwtMemberDetail.getMemberId().toString())
-			.claim("auth", authorities)
+			.claim("id", jwtMemberDetail.getMemberId())
 			.signWith(secretKey)
 			.expiration(Date.from(Instant.now().plusMillis(accessExpiration * 1000)))
 			.compact();
@@ -80,18 +77,15 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 
 	@Override
 	public Authentication getAuthentication(String token) {
-		//1. 토큰에서 Claims 추출
-		Claims claims = extractClaims(token);
 
-		//2. 사용자 ID 추출, Member 객체 조회
-		Long userId = Long.valueOf(claims.getSubject());
+		//1. 사용자 ID 추출, Member 객체 조회
+		Long userId = extractId(token)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		Member member=memberRepository.findById(userId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-		Collection<? extends GrantedAuthority> authorities= Arrays.stream(claims.get("auth", String.class).split(","))
-			.map(authority -> (GrantedAuthority) () -> authority)
-			.toList();
+		List<SimpleGrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_USER"));
 
 		//2. 사용자 정보 클래스 생성
 		JwtMemberDetail jwtMemberDetail = JwtMemberDetail.jwtMemberDetailBuilder()
@@ -128,6 +122,10 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 				token.replace(GRANT_TYPE, ""));
 	}
 
+	@Override
+	public Optional<Long> extractId(String token) {
+		return Optional.ofNullable(extractClaims(token).get("id", Long.class));
+	}
 
 	@Override
 	public boolean validateToken(String token) {
