@@ -3,6 +3,7 @@ package org.example.mirimilibe.global.auth.controller;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.auth.dto.LoginReq;
 import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
+import org.example.mirimilibe.global.auth.dto.RefreshDTO;
 import org.example.mirimilibe.global.auth.service.AuthService;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.global.auth.dto.SignUpReq;
@@ -37,6 +38,12 @@ public class AuthController {
 	public ResponseEntity<LoginSuccessRes> login(@RequestBody LoginReq loginReq) {
 		LoginSuccessRes loginSuccessRes = authService.login(loginReq);
 		return ResponseEntity.ok(loginSuccessRes);
+	}
+
+	@PostMapping("/reissue")
+	public ResponseEntity<RefreshDTO.Res> reissue(@RequestBody @Valid RefreshDTO.Req req) {
+		RefreshDTO.Res res = authService.refreshToken(req);
+		return ResponseEntity.ok(res);
 	}
 
 	@GetMapping("/test")
