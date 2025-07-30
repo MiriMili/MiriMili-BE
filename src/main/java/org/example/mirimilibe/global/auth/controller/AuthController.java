@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,10 @@ public class AuthController {
 	}
 
 	@PostMapping("/reissue")
+	@Operation(summary = "리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급합니다.",
+		description = "리프레시 토큰이 유효한 경우 새로운 액세스 토큰을 발급합니다. "
+			+ "액세스 토큰이 만료되어 401 Unauthorized 에러가 발생한 경우에만 사용해야 합니다."
+			+ "헤더에 만료된 액세스 토큰을 Bearer 타입으로 포함시켜야 합니다.")
 	public ResponseEntity<RefreshDTO.Res> reissue(@RequestBody @Valid RefreshDTO.Req req) {
 		RefreshDTO.Res res = authService.refreshToken(req);
 		return ResponseEntity.ok(res);
