@@ -10,6 +10,7 @@ import org.example.mirimilibe.common.Enum.TermType;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.auth.dto.LoginReq;
 import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
+import org.example.mirimilibe.global.auth.dto.RefreshDTO;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
@@ -86,7 +87,7 @@ public class AuthService {
 
 	}
 
-	@Transactional(readOnly = true)
+	@Transactional
 	public LoginSuccessRes login(LoginReq loginReq) {
 		try {
 			// 1. 인증 시도
@@ -107,18 +108,63 @@ public class AuthService {
 			// 3. JWT 생성
 			Authentication newAuth = jwtTokenUtil.createAuthentication(member);
 			String accessToken = jwtTokenUtil.generateAccessToken(newAuth);
+			String refreshToken = jwtTokenUtil.generateRefreshToken(newAuth);
 
 			// 4. 로그인 성공 로그
 			log.info("로그인 성공: 전화번호={}, 사용자 ID={}", loginReq.phoneNumber(), member.getId());
+			member.updateRefreshToken(refreshToken);
 
 			// 5. 결과 반환
-			return LoginSuccessRes.of(accessToken, member.getNickname());
+			return LoginSuccessRes.of(accessToken, refreshToken, member.getNickname());
 		}
 		catch (Exception e) {
 			// 인증 실패 시 예외 처리
 			log.warn("로그인 실패: 전화번호={}, {}", loginReq.phoneNumber(), e.getMessage());
 			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
 		}
+	}
+
+	@Transactional
+	public RefreshDTO.Res refreshToken(RefreshDTO.Req req) {
+		// 0. 리프레시 토큰 유효성 검사
+		String refreshToken = req.refreshToken();
+		if( !jwtTokenUtil.validateToken(refreshToken)) {
+			log.warn("유효하지 않은 리프레시 토큰: {}", refreshToken);
+			throw new MiriMiliException(MemberErrorCode.REFRESH_EXPIRED);
+		}
+
+		Long memberId = jwtTokenUtil.extractId(refreshToken)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		// 1. 전화번호로 회원 조회
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		// 2. 리프레시 토큰이 일치하는지 확인
+		if (!member.getRefreshToken().equals(req.refreshToken())) {
+			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
+		}
+
+		// 3. 새로운 액세스 토큰 생성
+		Authentication authentication = jwtTokenUtil.createAuthentication(member);
+		String newAccessToken = jwtTokenUtil.generateAccessToken(authentication);
+
+		log.info("리프레시 토큰 성공: 전화번호={}, 사용자 ID={}", member.getNickname(), member.getId());
+
+		// 4. 새로운 액세스 토큰 반환
+		return RefreshDTO.Res.of(newAccessToken);
+	}
+
+	@Transactional
+	public void logout(String phoneNumber) {
+		// 1. 전화번호로 회원 조회
+		Member member = memberRepository.findByNumber(phoneNumber)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		// 2. 리프레시 토큰 초기화
+		member.updateRefreshToken(null);
+
+		log.info("로그아웃 성공: 전화번호={}, 사용자 ID={}", phoneNumber, member.getId());
 	}
 
 	public void checkDuplicatePhoneNumber(String phoneNumber) {

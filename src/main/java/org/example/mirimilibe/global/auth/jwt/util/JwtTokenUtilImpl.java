@@ -67,8 +67,14 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 	}
 
 	@Override
-	public String generateRefreshToken() {
-		return "";
+	public String generateRefreshToken(Authentication authentication) {
+		JwtMemberDetail jwtMemberDetail = (JwtMemberDetail) authentication.getPrincipal();
+
+		return Jwts.builder()
+			.claim("id", jwtMemberDetail.getMemberId())
+			.signWith(secretKey)
+			.expiration(Date.from(Instant.now().plusMillis(refreshExpiration * 1000)))
+			.compact();
 	}
 
 	@Override

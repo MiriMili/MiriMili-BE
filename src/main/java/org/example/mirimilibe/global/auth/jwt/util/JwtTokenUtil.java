@@ -11,7 +11,7 @@ public interface JwtTokenUtil {
 
 	String generateAccessToken(Authentication authentication);
 
-	String generateRefreshToken();
+	String generateRefreshToken(Authentication authentication);
 
 	boolean validateToken(String token);
 
