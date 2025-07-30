@@ -1,5 +1,6 @@
 package org.example.mirimilibe.global.auth.controller;
 
+import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.auth.dto.LoginReq;
 import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
@@ -30,15 +31,15 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/signup")
-	public ResponseEntity<?> signUp(@RequestBody @Valid SignUpReq signUpReq) {
+	public ResponseEntity<ApiResponse<?>> signUp(@RequestBody @Valid SignUpReq signUpReq) {
 		authService.signUp(signUpReq);
-		return ResponseEntity.ok("회원가입 성공");
+		return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다."));
 	}
 
 	@PostMapping("/login")
-	public ResponseEntity<LoginSuccessRes> login(@RequestBody LoginReq loginReq) {
+	public ResponseEntity<ApiResponse<LoginSuccessRes>> login(@RequestBody LoginReq loginReq) {
 		LoginSuccessRes loginSuccessRes = authService.login(loginReq);
-		return ResponseEntity.ok(loginSuccessRes);
+		return ResponseEntity.ok(ApiResponse.success(loginSuccessRes));
 	}
 
 	@PostMapping("/reissue")
@@ -46,9 +47,9 @@ public class AuthController {
 		description = "리프레시 토큰이 유효한 경우 새로운 액세스 토큰을 발급합니다. "
 			+ "액세스 토큰이 만료되어 401 Unauthorized 에러가 발생한 경우에만 사용해야 합니다."
 			+ "헤더에 만료된 액세스 토큰을 Bearer 타입으로 포함시켜야 합니다.")
-	public ResponseEntity<RefreshDTO.Res> reissue(@RequestBody @Valid RefreshDTO.Req req) {
+	public ResponseEntity<ApiResponse<RefreshDTO.Res>> reissue(@RequestBody @Valid RefreshDTO.Req req) {
 		RefreshDTO.Res res = authService.refreshToken(req);
-		return ResponseEntity.ok(res);
+		return ResponseEntity.ok(ApiResponse.success(res));
 	}
 
 	@GetMapping("/test")
