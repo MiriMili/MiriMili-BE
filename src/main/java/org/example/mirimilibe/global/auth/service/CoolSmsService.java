@@ -14,6 +14,8 @@ import net.nurigo.sdk.NurigoApp;
 import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 
+import jakarta.annotation.PostConstruct;
+
 @Service
 public class CoolSmsService {
 	@Value("${cool-sms.api.key}")
@@ -25,18 +27,21 @@ public class CoolSmsService {
 	@Value("${cool-sms.api.number}")
 	private String fromPhoneNumber;
 
-	//레디스
+	private DefaultMessageService messageService;
 	private final StringRedisTemplate stringRedisTemplate;
 
-	private final int LIMIT_TIME = 60 * 3; // 5분
+	private final int LIMIT_TIME = 60 * 3;
 
 	public CoolSmsService(StringRedisTemplate stringRedisTemplate) {
 		this.stringRedisTemplate = stringRedisTemplate;
 	}
 
-	public void sendSms(SmsReq smsReq) {
-		DefaultMessageService messageService =  NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
+	@PostConstruct
+	private void init() {
+		this.messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
+	}
 
+	public void sendSms(SmsReq smsReq) {
 		String certificationCode = generateCertificationCode();
 		String str = String.format("인증번호는 %s 입니다.", certificationCode);
 
