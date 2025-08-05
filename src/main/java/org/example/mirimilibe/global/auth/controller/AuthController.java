@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.core.util.Json;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +29,16 @@ public class AuthController {
 	private final AuthService authService;
 
 	@PostMapping("/signup")
+	@Operation(
+		summary = "회원가입",
+		description = "회원가입을 위한 API입니다. 회원의 전화번호, 비밀번호, 닉네임, 약관 동의를 포함한 정보를 입력받습니다. <br>"
+			+ "전화번호는 01011112222 형식으로 11글자 (숫자)로 입력해야 하며, <br>"
+			+ "serviceAgreed, privacyPolicyAgreed는 true가 아닐 경우 회원가입이 실패합니다.<br>"
+			+ "군 정보는 선택 사항이며, 입력하지 않아도 회원가입이 성공합니다.<br>"
+			+ "MiliStatus는 ENUM 타입으로, 'PRE_ENLISTED, ENLISTED, DISCHARGED' 중 하나를 입력해주세요.<br>"
+			+ "MiliType은 ENUM 타입으로, 'ARMY, NAVY, AIR_FORCE' 중 하나를 입력해주세요."
+
+	)
 	public ResponseEntity<?> signUp(@RequestBody @Valid SignUpReq signUpReq) {
 		authService.signUp(signUpReq);
 		return ResponseEntity.ok("회원가입 성공");
@@ -40,6 +51,7 @@ public class AuthController {
 	}
 
 	@GetMapping("/test")
+	@Operation(	summary = "테스트용 사용자 정보 조회" )
 	public ResponseEntity<?> getUserDetail(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
 		// 테스트용으로 현재 로그인한 사용자의 정보를 반환
 		// 실제로는 인증된 사용자 정보를 가져오는 로직이 필요합니다.
