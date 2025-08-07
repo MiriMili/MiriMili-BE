@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.core.util.Json;
@@ -54,7 +55,7 @@ public class AuthController {
 		summary = "닉네임 중복 검사",
 		description = "입력한 닉네임이 이미 사용 중인지 확인하는 API입니다."
 	)
-	public ResponseEntity<ApiResponse<String>> checkNickname(@RequestBody String nickname) {
+	public ResponseEntity<ApiResponse<String>> checkNickname(@RequestParam String nickname) {
 		authService.checkDuplicateNickname(nickname);
 		return ResponseEntity.ok(ApiResponse.success("사용 가능한 닉네임입니다."));
 	}
