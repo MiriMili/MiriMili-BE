@@ -3,6 +3,7 @@ package org.example.mirimilibe.member.service;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.common.domain.Unit;
 import org.example.mirimilibe.global.error.MemberErrorCode;
@@ -26,19 +27,25 @@ public class MemberService {
 	private final UnitRepository unitRepository;
 	private final MilitaryInfoRepository militaryInfoRepository;
 
-	public void updateMilitaryInfo(MilitaryInfoReq militaryInfoReq, Member member) {
-		// 1. MilitaryInfo 객체 생성
-		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(member.getId())
-			.orElseGet(() -> {
-				MilitaryInfo newInfo = new MilitaryInfo();
-				newInfo.setMember(member);
-				return newInfo;
-			});
-
-		if(militaryInfoReq == null) {
-			militaryInfoRepository.save(militaryInfo);
-			return;
+	public void createMilitaryInfo(MiliStatus miliStatus, Member member) {
+		// 1. MilitaryInfo가 이미 존재하는지 확인
+		if (militaryInfoRepository.existsByMemberId(member.getId())) {
+			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_ALREADY_EXISTS);
 		}
+
+		// 2. MilitaryInfo 객체 생성
+		MilitaryInfo militaryInfo = new MilitaryInfo();
+		militaryInfo.setMember(member);
+		militaryInfo.setMiliStatus(miliStatus);
+
+		// 3. MilitaryInfo 저장
+		militaryInfoRepository.save(militaryInfo);
+	}
+
+	public void updateMilitaryInfo(MilitaryInfoReq militaryInfoReq, Long memberId) {
+		// 1. MilitaryInfo 객체 조회
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		Specialty specialty = Optional.ofNullable(militaryInfoReq.specialtyId())
 			.flatMap(specialtyRepository::findById)
