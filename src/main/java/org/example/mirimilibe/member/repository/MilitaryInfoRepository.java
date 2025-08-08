@@ -8,4 +8,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface MilitaryInfoRepository extends JpaRepository<MilitaryInfo,Long> {
 	Optional<MilitaryInfo> findByMemberId(Long memberId);
 
+	boolean existsByMemberId(Long memberId);
+
 }

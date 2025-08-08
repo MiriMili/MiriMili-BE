@@ -1,8 +1,10 @@
 package org.example.mirimilibe.member.service;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 
+import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.common.domain.Unit;
 import org.example.mirimilibe.global.error.MemberErrorCode;
@@ -17,7 +19,9 @@ import org.example.mirimilibe.post.repository.SpecialtyRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -26,19 +30,26 @@ public class MemberService {
 	private final UnitRepository unitRepository;
 	private final MilitaryInfoRepository militaryInfoRepository;
 
-	public void updateMilitaryInfo(MilitaryInfoReq militaryInfoReq, Member member) {
-		// 1. MilitaryInfo 객체 생성
-		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(member.getId())
-			.orElseGet(() -> {
-				MilitaryInfo newInfo = new MilitaryInfo();
-				newInfo.setMember(member);
-				return newInfo;
-			});
-
-		if(militaryInfoReq == null) {
-			militaryInfoRepository.save(militaryInfo);
-			return;
+	public void createMilitaryInfo(MiliStatus miliStatus, Member member) {
+		// 1. MilitaryInfo가 이미 존재하는지 확인
+		if (militaryInfoRepository.existsByMemberId(member.getId())) {
+			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_ALREADY_EXISTS);
 		}
+
+		// 2. MilitaryInfo 객체 생성
+		MilitaryInfo militaryInfo=MilitaryInfo.builder()
+			.member(member)
+			.miliStatus(miliStatus)
+			.build();
+
+		// 3. MilitaryInfo 저장
+		militaryInfoRepository.save(militaryInfo);
+	}
+
+	public void updateMilitaryInfo(MilitaryInfoReq militaryInfoReq, Long memberId) {
+		// 1. MilitaryInfo 객체 조회
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		Specialty specialty = Optional.ofNullable(militaryInfoReq.specialtyId())
 			.flatMap(specialtyRepository::findById)
@@ -57,7 +68,6 @@ public class MemberService {
 
 	public void applyImmutableFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
 		miliInfoValidateAndSet(info.getMiliType(), req.type(), info::setMiliType);
-		miliInfoValidateAndSet(info.getMiliStatus(), req.status(), info::setMiliStatus);
 		miliInfoValidateAndSet(info.getSpecialty(), specialty, info::setSpecialty);
 		miliInfoValidateAndSet(info.getUnit(), unit, info::setUnit);
 		miliInfoValidateAndSet(info.getStartDate(), req.startDate(), info::setStartDate);
