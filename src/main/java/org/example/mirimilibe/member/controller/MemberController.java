@@ -23,13 +23,13 @@ public class MemberController {
 
 	@PostMapping("/profile")
 	@Operation(
-		summary = "프로필 업데이트",
-		description = "사용자의 군 정보를 업데이트하는 API입니다. 수정하고자 하는 값만 담아서 보내주세요."
+		summary = "프로필 설정",
+		description = "사용자의 군 정보를 설정하는 API입니다. "
 			+ "MiliType은 ENUM 타입으로, 'ARMY, NAVY, AIR_FORCE' 중 하나를 입력해주세요."
 	)
 	public ResponseEntity<ApiResponse<String>> updateProfile(@RequestBody MilitaryInfoReq req, @AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
 		memberService.updateMilitaryInfo(req, jwtMemberDetail.getMemberId());
-		return ResponseEntity.ok(ApiResponse.success("프로필 업데이트 성공"));
+		return ResponseEntity.ok(ApiResponse.success("프로필 생성 성공"));
 	}
 
 }
