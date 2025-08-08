@@ -1,5 +1,6 @@
 package org.example.mirimilibe.member.service;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -18,7 +19,9 @@ import org.example.mirimilibe.post.repository.SpecialtyRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -34,9 +37,10 @@ public class MemberService {
 		}
 
 		// 2. MilitaryInfo 객체 생성
-		MilitaryInfo militaryInfo = new MilitaryInfo();
-		militaryInfo.setMember(member);
-		militaryInfo.setMiliStatus(miliStatus);
+		MilitaryInfo militaryInfo=MilitaryInfo.builder()
+			.member(member)
+			.miliStatus(miliStatus)
+			.build();
 
 		// 3. MilitaryInfo 저장
 		militaryInfoRepository.save(militaryInfo);

@@ -1,5 +1,6 @@
 package org.example.mirimilibe.member.domain;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 import org.example.mirimilibe.common.Enum.MiliStatus;
@@ -53,9 +54,9 @@ public class MilitaryInfo {
 	@JoinColumn(name = "unit")
 	private Unit unit;
 
-	private Date startDate;
-	private Date privateDate;
-	private Date corporalDate;
-	private Date sergeantDate;
-	private Date dischargeDate;
+	private LocalDate startDate;
+	private LocalDate privateDate;
+	private LocalDate corporalDate;
+	private LocalDate sergeantDate;
+	private LocalDate dischargeDate;
 }
