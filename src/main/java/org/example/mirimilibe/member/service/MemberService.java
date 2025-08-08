@@ -68,7 +68,6 @@ public class MemberService {
 
 	public void applyImmutableFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
 		miliInfoValidateAndSet(info.getMiliType(), req.type(), info::setMiliType);
-		miliInfoValidateAndSet(info.getMiliStatus(), req.status(), info::setMiliStatus);
 		miliInfoValidateAndSet(info.getSpecialty(), specialty, info::setSpecialty);
 		miliInfoValidateAndSet(info.getUnit(), unit, info::setUnit);
 		miliInfoValidateAndSet(info.getStartDate(), req.startDate(), info::setStartDate);
