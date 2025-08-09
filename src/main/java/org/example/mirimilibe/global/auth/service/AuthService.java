@@ -82,8 +82,8 @@ public class AuthService {
 
 		memberTermRepository.saveAll(memberTerms);
 
-		//5. 군 정보 저장
-		memberService.updateMilitaryInfo(signUpReq.militaryInfoReq(), member);
+		//5. 군 정보 생성
+		memberService.createMilitaryInfo(signUpReq.miliStatus(), member);
 
 	}
 

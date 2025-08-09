@@ -1,5 +1,6 @@
 package org.example.mirimilibe.global.auth.dto;
 
+import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.member.dto.MilitaryInfoReq;
 
 import jakarta.validation.constraints.Pattern;
@@ -12,5 +13,5 @@ public record SignUpReq(
 	Boolean serviceAgreed,
 	Boolean privacyPolicyAgreed,
 	Boolean marketingConsentAgreed,
-	MilitaryInfoReq militaryInfoReq
+	MiliStatus miliStatus
 ) {}
