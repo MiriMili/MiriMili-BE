@@ -21,6 +21,7 @@ public class DataInitializer implements CommandLineRunner {
 		if (loadCSV) {
 			csvLoadService.loadSpecialtyCSV();
 			csvLoadService.loadUnitCSV();
+			csvLoadService.loadCategoryCSV();
 		}
 	}
 }
