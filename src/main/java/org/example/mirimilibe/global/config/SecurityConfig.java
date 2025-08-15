@@ -66,6 +66,7 @@ public class SecurityConfig {
 		configuration.addExposedHeader("Authorization"); // 클라이언트가 Authorization 헤더를 읽을 수 있도록 허용
 
 		configuration.setAllowedOrigins(List.of(
+			"https://dmz6c9-3000.csb.app",
 			"http://localhost:3000",
 			"http://localhost:8080"
 		));
