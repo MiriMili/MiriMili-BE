@@ -8,6 +8,7 @@ import org.example.mirimilibe.common.Enum.MiliType;
 import org.example.mirimilibe.member.domain.Member;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,6 +46,7 @@ public class Post {
 	private Long viewCount;
 
 	@Enumerated(EnumType.STRING)
+	@Column(name = "target_mili_type", nullable = false)
 	private MiliType targetMiliType;
 
 	@ElementCollection
