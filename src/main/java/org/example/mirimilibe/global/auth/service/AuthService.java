@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.common.Enum.Status;
 import org.example.mirimilibe.common.Enum.TermType;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
@@ -17,8 +18,10 @@ import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.global.auth.dto.SignUpReq;
 import org.example.mirimilibe.member.domain.MemberTerm;
+import org.example.mirimilibe.member.domain.MilitaryInfo;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.example.mirimilibe.member.repository.MemberTermRepository;
+import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
 import org.example.mirimilibe.member.service.MemberService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -41,6 +44,7 @@ public class AuthService {
 	private final JwtTokenUtil jwtTokenUtil;
 	private final MemberService memberService;
 	private final MemberTermRepository memberTermRepository;
+	private final MilitaryInfoRepository militaryInfoRepository;
 
 	public void signUp(SignUpReq signUpReq) {
 		//1. 약관 동의 검사
@@ -114,8 +118,11 @@ public class AuthService {
 			log.info("로그인 성공: 전화번호={}, 사용자 ID={}", loginReq.phoneNumber(), member.getId());
 			member.updateRefreshToken(refreshToken);
 
+			//4-1. 현역 여부 및 군 정보 초기화 여부 확인
+			boolean isMilitaryInfoInit = checkMilitaryInfoInit(memberId);
+
 			// 5. 결과 반환
-			return LoginSuccessRes.of(accessToken, refreshToken, member.getNickname());
+			return LoginSuccessRes.of(accessToken, refreshToken, member.getNickname(), isMilitaryInfoInit);
 		}
 		catch (Exception e) {
 			// 인증 실패 시 예외 처리
@@ -179,4 +186,14 @@ public class AuthService {
 		}
 	}
 
+	private boolean checkMilitaryInfoInit(Long memberId) {
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		if (militaryInfo.getMiliStatus().equals(MiliStatus.ENLISTED)) {
+			return militaryInfo.hasValidInfo();
+		}
+
+		return true;
+	}
 }
