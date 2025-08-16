@@ -15,7 +15,9 @@ import net.nurigo.sdk.message.model.Message;
 import net.nurigo.sdk.message.service.DefaultMessageService;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class CoolSmsService {
 	@Value("${cool-sms.api.key}")
@@ -54,6 +56,8 @@ public class CoolSmsService {
 			// Redis에 인증 코드 저장
 			stringRedisTemplate.opsForValue().set("sms:"+smsReq.phoneNumber(), certificationCode, Duration.ofSeconds(LIMIT_TIME));
 			messageService.send(message);
+
+			log.info("[sms] 인증번호 전송 성공, 전화번호: {}", smsReq.phoneNumber());
 		} catch (Exception e) {
 			throw new MiriMiliException(SmsErrorCode.SEND_SMS_FAILED);
 		}
@@ -66,7 +70,7 @@ public class CoolSmsService {
 		}
 		// 인증 성공 후 Redis에서 인증 코드 삭제
 		stringRedisTemplate.delete("sms:" + req.phoneNumber());
-
+		log.info("[sms] 인증번호 검증 성공, 전화번호: {}", req.phoneNumber());
 	}
 
 	private String generateCertificationCode() {
