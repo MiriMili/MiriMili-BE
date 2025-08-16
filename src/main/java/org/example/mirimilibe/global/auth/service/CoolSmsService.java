@@ -45,7 +45,7 @@ public class CoolSmsService {
 
 	public void sendSms(SmsReq smsReq) {
 		String certificationCode = generateCertificationCode();
-		String str = String.format("인증번호는 %s 입니다.", certificationCode);
+		String str = String.format("[미리밀리] 인증번호는 %s 입니다.", certificationCode);
 
 		Message message = new Message();
 		message.setFrom(fromPhoneNumber);
@@ -54,8 +54,8 @@ public class CoolSmsService {
 
 		try {
 			// Redis에 인증 코드 저장
-			messageService.send(message);
 			stringRedisTemplate.opsForValue().set("sms:"+smsReq.phoneNumber(), certificationCode, Duration.ofSeconds(LIMIT_TIME));
+			messageService.send(message);
 
 			log.info("[sms] 인증번호 전송 성공, 전화번호: {}", smsReq.phoneNumber());
 		} catch (Exception e) {
