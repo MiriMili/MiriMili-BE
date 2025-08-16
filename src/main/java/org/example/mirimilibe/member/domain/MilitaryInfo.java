@@ -59,4 +59,15 @@ public class MilitaryInfo {
 	private LocalDate corporalDate;
 	private LocalDate sergeantDate;
 	private LocalDate dischargeDate;
+
+	public boolean hasValidInfo() {
+		return miliType != null ||
+			specialty != null ||
+			unit != null ||
+			startDate != null ||
+			privateDate != null ||
+			corporalDate != null ||
+			sergeantDate != null ||
+			dischargeDate != null;
+	}
 }

@@ -3,9 +3,10 @@ package org.example.mirimilibe.global.auth.dto;
 public record LoginSuccessRes(
 	String accessToken,
 	String refreshToken,
-	String nickname
+	String nickname,
+	boolean hasMilitaryInfo
 ) {
-	public static LoginSuccessRes of(String accessToken, String refreshToken, String nickname) {
-		return new LoginSuccessRes(accessToken, refreshToken, nickname);
+	public static LoginSuccessRes of(String accessToken, String refreshToken, String nickname, boolean hasMilitaryInfo) {
+		return new LoginSuccessRes(accessToken, refreshToken, nickname, hasMilitaryInfo);
 	}
 }
