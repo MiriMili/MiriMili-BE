@@ -54,11 +54,12 @@ public class CoolSmsService {
 
 		try {
 			// Redis에 인증 코드 저장
-			stringRedisTemplate.opsForValue().set("sms:"+smsReq.phoneNumber(), certificationCode, Duration.ofSeconds(LIMIT_TIME));
 			messageService.send(message);
+			stringRedisTemplate.opsForValue().set("sms:"+smsReq.phoneNumber(), certificationCode, Duration.ofSeconds(LIMIT_TIME));
 
 			log.info("[sms] 인증번호 전송 성공, 전화번호: {}", smsReq.phoneNumber());
 		} catch (Exception e) {
+			log.error("[sms] 인증번호 전송 실패, 전화번호: {}, 원인: {}", smsReq.phoneNumber(), e.getMessage());
 			throw new MiriMiliException(SmsErrorCode.SEND_SMS_FAILED);
 		}
 	}
