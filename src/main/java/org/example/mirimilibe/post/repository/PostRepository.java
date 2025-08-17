@@ -18,11 +18,16 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	""")
 	Page<Post> findDistinctByCategories(@Param("categoryIds") List<Long> categoryIds, Pageable pageable);
 
+
 	Page<Post> findByTitleContainingIgnoreCaseOrBodyContainingIgnoreCase(
 		String titleKeyword,
 		String bodyKeyword,
 		Pageable pageable
 	);
+
+	List<Post> findByWriterId(Long memberId);
+
+
 }
 
 

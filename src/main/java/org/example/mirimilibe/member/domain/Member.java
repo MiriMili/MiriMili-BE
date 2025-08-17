@@ -38,4 +38,10 @@ public class Member {
 	private String password;
 
 	private LocalDateTime createdAt;
+
+	private String refreshToken;
+
+	public void updateRefreshToken(String refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 }

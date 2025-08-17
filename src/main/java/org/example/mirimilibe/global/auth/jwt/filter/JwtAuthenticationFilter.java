@@ -31,11 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	protected List<String> filterPassList=List.of(
 		"/auth/login",
+		"/actuator/prometheus",
 		"/auth/signup",
 		"/auth/checkNickname",
 		"/swagger-ui/**",
 		"/swagger-resources/**",
-		"/v3/api-docs/**"
+		"/v3/api-docs/**",
+		"/sms/verify",
+		"/sms/send"
 	);
 
 	@Override
@@ -57,7 +60,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		if (accessToken == null) {
 			log.warn("Authorization 헤더에 access-token이 없습니다.");
 			//throw new MiriMiliException(MemberErrorCode.ACCESS_TOKEN_NOT_FOUND);
-			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			response.setContentType("application/json;charset=UTF-8");
 			return;
 		}
@@ -80,9 +83,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 
 		}catch(ExpiredJwtException e){
-			log.error("만료된 access-token: {}", accessToken);
-			throw new MiriMiliException(MemberErrorCode.ACCESS_EXPIRED);
+			log.warn("만료된 access-token: {}", accessToken);
+
 			// TODO: 추후 refresh-token 관련 처리 추가
+			String requestURI = request.getRequestURI();
+			log.info("[만료된 access-token 요청] 요청 URI: {}", requestURI);
+
+			if (requestURI.equals("/auth/reissue")) {
+				filterChain.doFilter(request, response);
+				return;
+			}
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json;charset=UTF-8");
 
 		}catch (Exception e) {
 			//6. 토큰이 유효하지 않은 경우 예외 처리

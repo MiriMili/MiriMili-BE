@@ -43,8 +43,9 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 인증 비활성화
 			.cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
 			.authorizeHttpRequests(auth -> auth
-				.requestMatchers("/auth/signup", "/auth/login", "/auth/checkNickname").permitAll()
-				.requestMatchers("/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
+				.requestMatchers("/auth/signup", "/auth/login", "/auth/checkNickname", "/auth/reissue", "/sms/verify", "/sms/send").permitAll()
+				.requestMatchers("/actuator/health",
+					"/actuator/prometheus","/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
 				.anyRequest().authenticated() // 나머지 요청은 인증 필요
 			);
 
@@ -66,6 +67,7 @@ public class SecurityConfig {
 		configuration.addExposedHeader("Authorization"); // 클라이언트가 Authorization 헤더를 읽을 수 있도록 허용
 
 		configuration.setAllowedOrigins(List.of(
+			"https://dmz6c9-3000.csb.app",
 			"http://localhost:3000",
 			"http://localhost:8080"
 		));

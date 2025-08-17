@@ -7,6 +7,7 @@ import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.auth.service.CustomUserDetailsService;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
+import org.example.mirimilibe.post.dto.PostDetailResponse;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
 import org.example.mirimilibe.post.service.PostService;
 import org.example.mirimilibe.post.service.RecentSearchService;
@@ -17,6 +18,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,11 +45,19 @@ public class PostController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<Long>> createPost(
 		@RequestBody PostCreateRequest req,
-		Member member //  @AuthenticationPrincipal CustomUserDetails user
+		Long memberId //  @AuthenticationPrincipal CustomUserDetails user
 	) {
 
-		Long postId = postService.createPost(member.getId(), req);
+		Long postId = postService.createPost(memberId, req);
+
 		return ResponseEntity.ok(ApiResponse.success(postId));
+	}
+
+
+	@GetMapping("/{postId}")
+	public ResponseEntity<ApiResponse<PostDetailResponse>> getPostDetail(@PathVariable Long postId) {
+		PostDetailResponse response = postService.getPostDetail(postId);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	@GetMapping("/list")
