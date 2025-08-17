@@ -25,8 +25,8 @@ public class MemberController {
 	@PostMapping("/profile")
 	@Operation(
 		summary = "프로필 설정",
-		description = "사용자의 군 정보를 설정하는 API입니다. "
-			+ "MiliType은 ENUM 타입으로, 'ARMY, NAVY, AIR_FORCE' 중 하나를 입력해주세요."
+		description = "사용자의 군 정보를 설정하는 API입니다. <br>"
+			+ "MiliType은 ENUM 타입으로, 'ARMY, NAVY, AIR_FORCE' 중 하나를 입력해주세요. 해당 필드는 필수로 입력해야 합니다."
 	)
 	public ResponseEntity<ApiResponse<String>> updateProfile(@Valid @RequestBody MilitaryInfoReq req, @AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
 		memberService.updateMilitaryInfo(req, jwtMemberDetail.getMemberId());
