@@ -191,7 +191,7 @@ public class AuthService {
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		if (militaryInfo.getMiliStatus().equals(MiliStatus.ENLISTED)) {
-			return militaryInfo.hasValidInfo();
+			return militaryInfo.getMiliType() != null;
 		}
 
 		return true;
