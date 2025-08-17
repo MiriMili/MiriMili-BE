@@ -31,6 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	protected List<String> filterPassList=List.of(
 		"/auth/login",
+		"/actuator/prometheus",
 		"/auth/signup",
 		"/auth/checkNickname",
 		"/swagger-ui/**",
