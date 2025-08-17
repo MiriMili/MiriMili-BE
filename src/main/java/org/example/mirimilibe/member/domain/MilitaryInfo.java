@@ -59,4 +59,5 @@ public class MilitaryInfo {
 	private LocalDate corporalDate;
 	private LocalDate sergeantDate;
 	private LocalDate dischargeDate;
+
 }
