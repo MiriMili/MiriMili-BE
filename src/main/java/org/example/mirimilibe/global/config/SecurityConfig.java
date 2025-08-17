@@ -44,7 +44,8 @@ public class SecurityConfig {
 			.cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/auth/signup", "/auth/login", "/auth/checkNickname", "/auth/reissue", "/sms/verify", "/sms/send").permitAll()
-				.requestMatchers("/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
+				.requestMatchers("/actuator/health",
+					"/actuator/prometheus","/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
 				.anyRequest().authenticated() // 나머지 요청은 인증 필요
 			);
 
