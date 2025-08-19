@@ -4,14 +4,21 @@ import java.util.List;
 
 import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.CommonPageResponse;
+import org.example.mirimilibe.global.auth.service.CustomUserDetailsService;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
+import org.example.mirimilibe.post.dto.PostDetailResponse;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
 import org.example.mirimilibe.post.service.PostService;
+import org.example.mirimilibe.post.service.RecentSearchService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 public class PostController {
 
 	private final PostService postService;
+	private final RecentSearchService recentSearchService;
 
 	@Operation(
 		summary = "게시글 작성",
@@ -37,10 +45,19 @@ public class PostController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<Long>> createPost(
 		@RequestBody PostCreateRequest req,
-		Member member //  @AuthenticationPrincipal CustomUserDetails user
+		Long memberId //  @AuthenticationPrincipal CustomUserDetails user
 	) {
-		Long postId = postService.createPost(member.getId(), req);
+
+		Long postId = postService.createPost(memberId, req);
+
 		return ResponseEntity.ok(ApiResponse.success(postId));
+	}
+
+
+	@GetMapping("/{postId}")
+	public ResponseEntity<ApiResponse<PostDetailResponse>> getPostDetail(@PathVariable Long postId) {
+		PostDetailResponse response = postService.getPostDetail(postId);
+		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
 	@GetMapping("/list")
@@ -53,4 +70,16 @@ public class PostController {
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
+	@GetMapping("/search")
+	@Operation(summary = "게시글 검색 (제목/본문 포함)", description = "제목 또는 본문에 키워드가 포함된 게시글을 페이징 조회합니다.")
+	public ResponseEntity<ApiResponse<CommonPageResponse<PostListItemResponse>>> searchPosts(
+		@RequestParam("q") String keyword,
+		@ParameterObject
+		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+		Member member
+	) {
+		CommonPageResponse<PostListItemResponse> response = postService.searchPosts(keyword, pageable);
+		recentSearchService.add(member.getId(), keyword);
+		return ResponseEntity.ok(ApiResponse.success(response));
+	}
 }

@@ -3,6 +3,7 @@ package org.example.mirimilibe.post.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.example.mirimilibe.comment.domain.ReactionType;
 import org.example.mirimilibe.comment.repository.CommentRepository;
@@ -32,6 +33,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
 
@@ -82,7 +84,6 @@ public class PostService {
 
 		return post.getId();
 	}
-
 
 	@Transactional
 	public PostDetailResponse getPostDetail(Long postId) {
@@ -148,5 +149,31 @@ public class PostService {
 		return CommonPageResponse.of(dtoPage);
 	}
 
+	@Transactional(readOnly = true)
+	public CommonPageResponse<PostListItemResponse> searchPosts(String keyword, Pageable pageable) {
 
+		if (!StringUtils.hasText(keyword)) {
+			return CommonPageResponse.of(Page.empty(pageable));
+		}
+
+		Page<Post> postPage = postRepository
+			.findByTitleContainingIgnoreCaseOrBodyContainingIgnoreCase(keyword, keyword, pageable);
+
+		var postIds = postPage.stream().map(Post::getId).collect(Collectors.toList());
+		var commentCounts = commentRepository.countByPostIds(postIds);
+		var likeCounts = postLikeRepository.countByPostIdsAndType(postIds, ReactionType.LIKE);
+
+		Page<PostListItemResponse> dtoPage = postPage.map(post -> new PostListItemResponse(
+			post.getId(),
+			post.getTitle(),
+			post.getBody(),
+			commentCounts.getOrDefault(post.getId(), 0L),
+			likeCounts.getOrDefault(post.getId(), 0L),
+			post.getViewCount(),
+			post.getCreatedAt()
+		));
+
+		return CommonPageResponse.of(dtoPage);
+
+	}
 }
