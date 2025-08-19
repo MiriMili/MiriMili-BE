@@ -43,12 +43,10 @@ public class CSVLoadService {
 			 CSVReader csvReader = new CSVReader(reader)){
 			List<Specialty> specialties = new ArrayList<>();
 			String[] line;
-			long num = 1;
 
 			while ((line = csvReader.readNext()) != null) {
 				Specialty specialty = Specialty.builder()
 					.value(line[0])
-					.specialtyId(num++)
 					.build();
 				specialties.add(specialty);
 			}
@@ -71,12 +69,10 @@ public class CSVLoadService {
 			 CSVReader csvReader = new CSVReader(reader)){
 			List<Unit> units = new ArrayList<>();
 			String[] line;
-			long num = 1;
 
 			while ((line = csvReader.readNext()) != null) {
 				Unit unit = Unit.builder()
 					.value(line[0])
-					.unitId(num++)
 					.build();
 				units.add(unit);
 			}
@@ -100,12 +96,10 @@ public class CSVLoadService {
 			 CSVReader csvReader = new CSVReader(reader)){
 			List<Category> categories = new ArrayList<>();
 			String[] line;
-			long num = 1;
 
 			while ((line = csvReader.readNext()) != null) {
 				Category category = Category.builder()
 					.value(line[0])
-					.categoryId(num++)
 					.build();
 				categories.add(category);
 			}

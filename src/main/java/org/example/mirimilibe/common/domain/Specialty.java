@@ -20,7 +20,5 @@ public class Specialty {
 	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
 	private Long id;
 
-	private Long specialtyId;
-
 	private String value;
 }

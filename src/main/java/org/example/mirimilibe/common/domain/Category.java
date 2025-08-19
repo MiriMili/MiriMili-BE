@@ -20,7 +20,5 @@ public class Category {
 	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
 	private Long id;
 
-	private Long categoryId;
-
 	private String value;
 }

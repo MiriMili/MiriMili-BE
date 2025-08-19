@@ -20,7 +20,5 @@ public class Unit {
 	@GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
 	private Long id;
 
-	private Long unitId;
-
 	private String value;
 }
