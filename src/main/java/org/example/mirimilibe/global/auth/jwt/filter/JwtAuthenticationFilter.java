@@ -38,7 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/swagger-resources/**",
 		"/v3/api-docs/**",
 		"/sms/verify",
-		"/sms/send"
+		"/sms/send",
+		"/member/password"
 	);
 
 	@Override
