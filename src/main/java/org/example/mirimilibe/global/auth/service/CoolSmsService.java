@@ -71,7 +71,15 @@ public class CoolSmsService {
 		}
 		// 인증 성공 후 Redis에서 인증 코드 삭제
 		stringRedisTemplate.delete("sms:" + req.phoneNumber());
+		// 3분 간 인증 유효
+		stringRedisTemplate.opsForValue().set("verified:" + req.phoneNumber(), "true", Duration.ofSeconds(LIMIT_TIME));
+
 		log.info("[sms] 인증번호 검증 성공, 전화번호: {}", req.phoneNumber());
+	}
+
+	public boolean isCertificationCompleted(String phoneNumber) {
+		String isValid = stringRedisTemplate.opsForValue().get("verified:" + phoneNumber);
+		return isValid != null;
 	}
 
 	private String generateCertificationCode() {
