@@ -4,8 +4,10 @@ import java.time.Duration;
 
 import org.example.mirimilibe.global.auth.dto.SmsReq;
 import org.example.mirimilibe.global.auth.dto.SmsVerifyReq;
+import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.error.SmsErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
+import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -31,11 +33,13 @@ public class CoolSmsService {
 
 	private DefaultMessageService messageService;
 	private final StringRedisTemplate stringRedisTemplate;
+	private final MemberRepository memberRepository;
 
 	private final int LIMIT_TIME = 60 * 3;
 
-	public CoolSmsService(StringRedisTemplate stringRedisTemplate) {
+	public CoolSmsService(StringRedisTemplate stringRedisTemplate, MemberRepository memberRepository) {
 		this.stringRedisTemplate = stringRedisTemplate;
+		this.memberRepository = memberRepository;
 	}
 
 	@PostConstruct
@@ -43,7 +47,7 @@ public class CoolSmsService {
 		this.messageService = NurigoApp.INSTANCE.initialize(apiKey, apiSecret, "https://api.coolsms.co.kr");
 	}
 
-	public void sendSms(SmsReq smsReq) {
+	private void sendSms(SmsReq smsReq) {
 		String certificationCode = generateCertificationCode();
 		String str = String.format("[미리밀리] 인증번호는 %s 입니다.", certificationCode);
 
@@ -76,6 +80,14 @@ public class CoolSmsService {
 
 	private String generateCertificationCode() {
 		return Integer.toString((int) (Math.random() * (999999 - 100000 + 1)) + 100000);
+	}
+
+	public void sendSignUpSms(SmsReq smsReq) {
+		// 회원가입 시 문자 인증번호 발송
+		if (memberRepository.existsByNumber(smsReq.phoneNumber())) {
+			throw new MiriMiliException(MemberErrorCode.DUPLICATE_PHONE_NUMBER);
+		}
+		sendSms(smsReq);
 	}
 
 }
