@@ -28,7 +28,7 @@ public class SmsController {
 		+ "발급된 인증번호는 3분 동안 유효하며 숫자 6자리로 구성됩니다. "
 		+ "발송된 인증번호는 레디스에 저장되며, 이후 검증을 위해 사용됩니다. ")
 	public ResponseEntity<ApiResponse<String>> SendSMS(@RequestBody @Valid SmsReq req){
-		smsService.sendSms(req);
+		smsService.sendSignUpSms(req);
 		return ResponseEntity.ok(ApiResponse.success("문자 인증번호가 발송되었습니다."));
 	}
 
