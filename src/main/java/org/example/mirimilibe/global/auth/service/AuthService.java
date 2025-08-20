@@ -14,6 +14,7 @@ import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
 import org.example.mirimilibe.global.auth.dto.RefreshDTO;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.error.SmsErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.global.auth.dto.SignUpReq;
@@ -45,8 +46,14 @@ public class AuthService {
 	private final MemberService memberService;
 	private final MemberTermRepository memberTermRepository;
 	private final MilitaryInfoRepository militaryInfoRepository;
+	private final CoolSmsService coolSmsService;
 
 	public void signUp(SignUpReq signUpReq) {
+		//0. 문자 인증 여부 조회
+		if( !coolSmsService.isCertificationCompleted(signUpReq.phoneNumber()) ) {
+			throw new MiriMiliException(SmsErrorCode.NEED_SMS_VERIFICATION);
+		}
+
 		//1. 약관 동의 검사
 		if (!signUpReq.serviceAgreed() || !signUpReq.privacyPolicyAgreed()) {
 			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);

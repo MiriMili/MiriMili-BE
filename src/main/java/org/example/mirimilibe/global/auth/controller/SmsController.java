@@ -43,7 +43,10 @@ public class SmsController {
 	}
 
 	@PostMapping("/verify")
-	@Operation(summary = "문자 인증번호 검증",	description = "발송된 문자 인증번호를 검증합니다.")
+	@Operation(summary = "문자 인증번호 검증",
+		description = "발송된 문자 인증번호를 검증합니다. <br>"
+		+ "회원가입 또는 비밀번호 재설정 전에 이 API를 호출하여 전화번호를 검증해야 합니다."
+		+ "인증된 상태는 5분 동안 유효합니다. <br>")
 	public ResponseEntity<ApiResponse<String>> VerifySMS(@RequestBody @Valid SmsVerifyReq req) {
 		smsService.verifySms(req);
 		return ResponseEntity.ok(ApiResponse.success("문자 인증이 완료되었습니다."));

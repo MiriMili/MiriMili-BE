@@ -36,6 +36,7 @@ public class CoolSmsService {
 	private final MemberRepository memberRepository;
 
 	private final int LIMIT_TIME = 60 * 3;
+	private final int VERIFY_TIME = 60 * 5;
 
 	public CoolSmsService(StringRedisTemplate stringRedisTemplate, MemberRepository memberRepository) {
 		this.stringRedisTemplate = stringRedisTemplate;
@@ -75,8 +76,8 @@ public class CoolSmsService {
 		}
 		// 인증 성공 후 Redis에서 인증 코드 삭제
 		stringRedisTemplate.delete("sms:" + req.phoneNumber());
-		// 3분 간 인증 유효
-		stringRedisTemplate.opsForValue().set("verified:" + req.phoneNumber(), "true", Duration.ofSeconds(LIMIT_TIME));
+		// 5분 간 인증 유효
+		stringRedisTemplate.opsForValue().set("verified:" + req.phoneNumber(), "true", Duration.ofSeconds(VERIFY_TIME));
 
 		log.info("[sms] 인증번호 검증 성공, 전화번호: {}", req.phoneNumber());
 	}
