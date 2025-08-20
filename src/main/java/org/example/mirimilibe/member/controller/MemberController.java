@@ -39,7 +39,7 @@ public class MemberController {
 		summary = "비밀번호 변경",
 		description = "회원의 전화번호와 현재 비밀번호, 새 비밀번호를 사용하여 비밀번호를 변경합니다. <br>"
 			+ "현재 비밀번호가 일치하지 않거나 새 비밀번호가 유효하지 않은 경우 실패합니다. <br>"
-			+ "해당 API를 호출하기 전 문자 인증을 완료해야 합니다. 문자 인증 유효 시간은 3분 입니다."
+			+ "해당 API를 호출하기 전 문자 인증 절차가 선행되어야 합니다."
 	)
 	public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody PwdReq req) {
 		memberService.changePassword(req.phoneNumber(), req.newPassword());
