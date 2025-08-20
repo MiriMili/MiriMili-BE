@@ -98,4 +98,11 @@ public class CoolSmsService {
 		sendSms(smsReq);
 	}
 
+	public void sendPwdChangeSms(SmsReq smsReq) {
+		// 비밀번호 변경 시 문자 인증번호 발송
+		if (!memberRepository.existsByNumber(smsReq.phoneNumber())) {
+			throw new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND);
+		}
+		sendSms(smsReq);
+	}
 }
