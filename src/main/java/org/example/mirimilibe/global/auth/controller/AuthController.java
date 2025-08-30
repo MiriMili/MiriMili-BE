@@ -37,8 +37,8 @@ public class AuthController {
 		description = "회원가입을 위한 API입니다. 회원의 전화번호, 비밀번호, 닉네임, 약관 동의를 포함한 정보를 입력받습니다. <br>"
 			+ "전화번호는 01011112222 형식으로 11글자 (숫자)로 입력해야 하며, <br>"
 			+ "serviceAgreed, privacyPolicyAgreed는 true가 아닐 경우 회원가입이 실패합니다.<br>"
-			+ "군 정보는 선택 사항이며, 입력하지 않아도 회원가입이 성공합니다.<br>"
 			+ "MiliStatus는 ENUM 타입으로, 'PRE_ENLISTED, ENLISTED, DISCHARGED' 중 하나를 입력해주세요.<br>"
+			+ "모든 필드는 필수로 입력해야 합니다."
 	)
 	public ResponseEntity<ApiResponse<?>> signUp(@RequestBody @Valid SignUpReq signUpReq) {
 		authService.signUp(signUpReq);
