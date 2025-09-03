@@ -50,9 +50,9 @@ public class AuthService {
 
 	public void signUp(SignUpReq signUpReq) {
 		//0. 문자 인증 여부 조회
-		if( !coolSmsService.isCertificationCompleted(signUpReq.phoneNumber()) ) {
+		/*if( !coolSmsService.isCertificationCompleted(signUpReq.phoneNumber()) ) {
 			throw new MiriMiliException(SmsErrorCode.NEED_SMS_VERIFICATION);
-		}
+		}*/
 
 		//1. 약관 동의 검사
 		if (!signUpReq.serviceAgreed() || !signUpReq.privacyPolicyAgreed()) {

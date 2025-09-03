@@ -8,6 +8,7 @@ import org.example.mirimilibe.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,11 +35,10 @@ public class MemberController {
 		return ResponseEntity.ok(ApiResponse.success("프로필 생성 성공"));
 	}
 
-	@PostMapping("/password")
+	@PatchMapping("/password")
 	@Operation(
 		summary = "비밀번호 변경",
-		description = "회원의 전화번호와 현재 비밀번호, 새 비밀번호를 사용하여 비밀번호를 변경합니다. <br>"
-			+ "현재 비밀번호가 일치하지 않거나 새 비밀번호가 유효하지 않은 경우 실패합니다. <br>"
+		description = "회원의 전화번호와 새 비밀번호를 사용하여 비밀번호를 변경합니다. <br>"
 			+ "해당 API를 호출하기 전 문자 인증 절차가 선행되어야 합니다."
 	)
 	public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody PwdReq req) {

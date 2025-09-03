@@ -32,7 +32,7 @@ public class SmsController {
 		return ResponseEntity.ok(ApiResponse.success("문자 인증번호가 발송되었습니다."));
 	}
 
-	@GetMapping("/send-pwd")
+	@PostMapping("/send-pwd")
 	@Operation(summary = "비밀번호 변경 문자 인증번호 발송",
 		description = "비밀번호 변경을 위한 문자 인증번호를 발송합니다. "
 		+ "발급된 인증번호는 3분 동안 유효하며 숫자 6자리로 구성됩니다. "
