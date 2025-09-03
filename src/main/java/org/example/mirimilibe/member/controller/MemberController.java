@@ -3,6 +3,7 @@ package org.example.mirimilibe.member.controller;
 import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.dto.MilitaryInfoReq;
+import org.example.mirimilibe.member.dto.MilitaryInfoRes;
 import org.example.mirimilibe.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -31,6 +32,17 @@ public class MemberController {
 	public ResponseEntity<ApiResponse<String>> updateProfile(@Valid @RequestBody MilitaryInfoReq req, @AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
 		memberService.updateMilitaryInfo(req, jwtMemberDetail.getMemberId());
 		return ResponseEntity.ok(ApiResponse.success("프로필 생성 성공"));
+	}
+
+	@GetMapping("/profile")
+	@Operation(
+		summary = "프로필 조회",
+		description = "사용자의 군 정보를 조회하는 API입니다. <br>"
+			+ "아직 입력되지 않은 정보는 null로 반환됩니다."
+	)
+	public ResponseEntity<ApiResponse<MilitaryInfoRes>> getProfile(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
+		MilitaryInfoRes res = memberService.getMilitaryInfo(jwtMemberDetail.getMemberId());
+		return ResponseEntity.ok(ApiResponse.success(res));
 	}
 
 }

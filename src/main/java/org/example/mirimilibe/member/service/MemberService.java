@@ -12,6 +12,7 @@ import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
 import org.example.mirimilibe.member.dto.MilitaryInfoReq;
+import org.example.mirimilibe.member.dto.MilitaryInfoRes;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
 import org.example.mirimilibe.member.repository.UnitRepository;
@@ -64,6 +65,13 @@ public class MemberService {
 
 		// 3. MilitaryInfo 저장
 		militaryInfoRepository.save(militaryInfo);
+	}
+
+	public MilitaryInfoRes getMilitaryInfo(Long memberId) {
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		return MilitaryInfoRes.fromEntity(militaryInfo);
 	}
 
 	public void applyImmutableFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
