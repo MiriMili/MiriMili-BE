@@ -7,7 +7,6 @@ import org.example.mirimilibe.common.Enum.MiliType;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
 
 public record MilitaryInfoRes(
-	MiliStatus status,
 	MiliType type,
 	Long specialtyId,
 	Long unitId,
@@ -19,7 +18,6 @@ public record MilitaryInfoRes(
 ) {
 	public static MilitaryInfoRes fromEntity(MilitaryInfo militaryInfo){
 		return new MilitaryInfoRes(
-			militaryInfo.getMiliStatus(),
 			militaryInfo.getMiliType(),
 			militaryInfo.getSpecialty()!=null ? militaryInfo.getSpecialty().getId() : null,
 			militaryInfo.getUnit()!=null ? militaryInfo.getUnit().getId() : null,

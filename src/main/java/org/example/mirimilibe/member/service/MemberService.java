@@ -14,6 +14,7 @@ import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
 import org.example.mirimilibe.member.dto.MilitaryInfoReq;
 import org.example.mirimilibe.member.dto.MilitaryInfoRes;
+import org.example.mirimilibe.member.dto.MyPageRes;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
 import org.example.mirimilibe.member.repository.UnitRepository;
@@ -72,11 +73,16 @@ public class MemberService {
 		militaryInfoRepository.save(militaryInfo);
 	}
 
-	public MilitaryInfoRes getMilitaryInfo(Long memberId) {
+	public MyPageRes getMilitaryInfo(Long memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
-		return MilitaryInfoRes.fromEntity(militaryInfo);
+		MilitaryInfoRes militaryInfoRes=MilitaryInfoRes.fromEntity(militaryInfo);
+
+		return MyPageRes.of(militaryInfo.getMiliStatus(), member.getNickname(), member.getNumber(), militaryInfoRes);
 	}
 
 	public void updateMiliStatus(Long memberId) {
