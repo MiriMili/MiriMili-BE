@@ -8,6 +8,7 @@ import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.common.domain.Unit;
 import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
@@ -34,7 +35,7 @@ public class MemberService {
 	public void createMilitaryInfo(MiliStatus miliStatus, Member member) {
 		// 1. MilitaryInfo가 이미 존재하는지 확인
 		if (militaryInfoRepository.existsByMemberId(member.getId())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_ALREADY_EXISTS);
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_ALREADY_EXISTS);
 		}
 
 		// 2. MilitaryInfo 객체 생성
@@ -50,10 +51,10 @@ public class MemberService {
 	public void updateMilitaryInfo(MilitaryInfoReq militaryInfoReq, Long memberId) {
 		// 1. MilitaryInfo 객체 조회
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		if(militaryInfo.getMiliStatus() == MiliStatus.PRE_ENLISTED) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_ACCESS);
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_ACCESS);
 		}
 
 		Specialty specialty = Optional.ofNullable(militaryInfoReq.specialtyId())
@@ -73,17 +74,17 @@ public class MemberService {
 
 	public MilitaryInfoRes getMilitaryInfo(Long memberId) {
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		return MilitaryInfoRes.fromEntity(militaryInfo);
 	}
 
 	public void updateMiliStatus(Long memberId) {
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		if(militaryInfo.getMiliStatus() != MiliStatus.PRE_ENLISTED) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_UPDATE);
 		}
 
 		militaryInfo.setMiliStatus(MiliStatus.ENLISTED);
@@ -109,7 +110,7 @@ public class MemberService {
 		if (currentValue == null) {
 			setter.accept(newValue);
 		} else if (!currentValue.equals(newValue)) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_UPDATE);
 		}
 	}
 
