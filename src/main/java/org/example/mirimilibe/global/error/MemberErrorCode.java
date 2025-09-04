@@ -18,9 +18,11 @@ public enum MemberErrorCode implements ErrorCode{
 	ACCESS_FORBIDDEN(HttpStatus.FORBIDDEN,"ACCESS403","탈퇴한 회원입니다."),
 	MILITARY_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404-2", "군 정보를 찾을 수 없습니다."),
 	MILITARY_INFO_ALREADY_EXISTS(HttpStatus.BAD_REQUEST, "MEMBER400-1", "이미 군 정보가 존재합니다."),
+	MILITARY_INFO_CANNOT_UPDATE(HttpStatus.BAD_REQUEST, "MEMBER400-2", "입력된 정보는 수정할 수 없습니다."),
+	MILITARY_INFO_CANNOT_ACCESS(HttpStatus.BAD_REQUEST, "MEMBER400-5", "군 정보에 접근할 수 없습니다."),
+
 	UNIT_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404-3", "부대를 찾을 수 없습니다."),
 	SPECIALTY_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER404-4", "특기를 찾을 수 없습니다."),
-	MILITARY_INFO_CANNOT_UPDATE(HttpStatus.BAD_REQUEST, "MEMBER400-2", "입력된 정보는 수정할 수 없습니다."),
 
 	MATCH_NOT_FOUND(HttpStatus.NOT_FOUND,"MATCH404","이용내역을 찾을 수 없습니다."),
 	DUPLICATE_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "MEMBER400-3", "이미 등록된 전화번호입니다."),

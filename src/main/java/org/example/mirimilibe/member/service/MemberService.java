@@ -52,6 +52,10 @@ public class MemberService {
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
 
+		if(militaryInfo.getMiliStatus() == MiliStatus.PRE_ENLISTED) {
+			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_ACCESS);
+		}
+
 		Specialty specialty = Optional.ofNullable(militaryInfoReq.specialtyId())
 			.flatMap(specialtyRepository::findById)
 			.orElse(null);
@@ -72,6 +76,19 @@ public class MemberService {
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		return MilitaryInfoRes.fromEntity(militaryInfo);
+	}
+
+	public void updateMiliStatus(Long memberId) {
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		if(militaryInfo.getMiliStatus() != MiliStatus.PRE_ENLISTED) {
+			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
+		}
+
+		militaryInfo.setMiliStatus(MiliStatus.ENLISTED);
+
+		militaryInfoRepository.save(militaryInfo);
 	}
 
 	public void applyImmutableFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
