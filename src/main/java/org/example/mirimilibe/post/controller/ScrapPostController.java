@@ -3,10 +3,12 @@ package org.example.mirimilibe.post.controller;
 import java.util.List;
 
 import org.example.mirimilibe.global.ApiResponse;
+import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
 import org.example.mirimilibe.post.service.PostScrapService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -30,9 +32,9 @@ public class ScrapPostController {
 	@PostMapping("/{postId}/scrap")
 	public ResponseEntity<ApiResponse<Void>> toggleScrap(
 		@PathVariable Long postId,
-		Member member
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
-		postScrapService.toggleScrap(member.getId(), postId);
+		postScrapService.toggleScrap(jwtMemberDetail.getMemberId(), postId);
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 
@@ -42,9 +44,9 @@ public class ScrapPostController {
 	)
 	@GetMapping("/scrap/my")
 	public ResponseEntity<ApiResponse<List<PostListItemResponse>>> getMyScraps(
-		Member member
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
-		List<PostListItemResponse> response = postScrapService.getMyScrapPosts(member.getId());
+		List<PostListItemResponse> response = postScrapService.getMyScrapPosts(jwtMemberDetail.getMemberId());
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 

@@ -7,8 +7,10 @@ import org.example.mirimilibe.comment.dto.CommentCreateRequest;
 import org.example.mirimilibe.comment.repository.CommentSummaryResponse;
 import org.example.mirimilibe.comment.service.CommentService;
 import org.example.mirimilibe.global.ApiResponse;
+import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.domain.Member;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,9 +33,9 @@ public class CommentController {
 	public ResponseEntity<ApiResponse<Long>> createComment(
 		@PathVariable Long postId,
 		@RequestBody CommentCreateRequest req,
-		Member member
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
-		Long commentId = commentService.createComment(member.getId(), postId, req);
+		Long commentId = commentService.createComment(jwtMemberDetail.getMemberId(), postId, req);
 		return ResponseEntity.ok(ApiResponse.success(commentId));
 	}
 

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.CommonPageResponse;
+import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.auth.service.CustomUserDetailsService;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
@@ -45,10 +46,10 @@ public class PostController {
 	@PostMapping
 	public ResponseEntity<ApiResponse<Long>> createPost(
 		@RequestBody PostCreateRequest req,
-		Long memberId //  @AuthenticationPrincipal CustomUserDetails user
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
 
-		Long postId = postService.createPost(memberId, req);
+		Long postId = postService.createPost(jwtMemberDetail.getMemberId(), req);
 
 		return ResponseEntity.ok(ApiResponse.success(postId));
 	}
@@ -76,10 +77,10 @@ public class PostController {
 		@RequestParam("q") String keyword,
 		@ParameterObject
 		@PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
-		Member member
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
 		CommonPageResponse<PostListItemResponse> response = postService.searchPosts(keyword, pageable);
-		recentSearchService.add(member.getId(), keyword);
+		recentSearchService.add(jwtMemberDetail.getMemberId(), keyword);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 }
