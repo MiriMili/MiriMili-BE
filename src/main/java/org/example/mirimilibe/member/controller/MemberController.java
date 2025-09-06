@@ -45,9 +45,12 @@ public class MemberController {
 
 	@PatchMapping("/password")
 	@Operation(
-		summary = "비밀번호 변경",
+		summary = "비밀번호를 잊었을 경우 비밀번호 재설정 처리 (비로그인 상태)",
 		description = "회원의 전화번호와 새 비밀번호를 사용하여 비밀번호를 변경합니다. <br>"
-			+ "해당 API를 호출하기 전 문자 인증 절차가 선행되어야 합니다."
+			+ "비밀번호를 잊었을 경우 재설정 처리 과정 <br>"
+			+ "1. /sms/send-pwd 를 호출하여 전화번호 인증 코드 발송 (인증 코드는 3분 간 유효) <br>"
+			+ "2. /sms/verify 를 호출하여 인증 절차 진행 (인증 상태는 5분 간 유효) <br>"
+			+ "3. /member/password 를 호출하여 비밀번호 변경 진행"
 	)
 	public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody PwdReq req) {
 		memberService.changePassword(req.phoneNumber(), req.newPassword());
