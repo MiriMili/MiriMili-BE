@@ -1,9 +1,9 @@
 package org.example.mirimilibe.member.controller;
 
-import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.dto.MilitaryInfoReq;
+import org.example.mirimilibe.member.dto.PwdReq;
 import org.example.mirimilibe.member.dto.MilitaryInfoRes;
 import org.example.mirimilibe.member.dto.MyPageRes;
 import org.example.mirimilibe.member.service.MemberService;
@@ -41,6 +41,17 @@ public class MemberController {
 	public ResponseEntity<ApiResponse<String>> updateProfile(@Valid @RequestBody MilitaryInfoReq req, @AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
 		memberService.updateMilitaryInfo(req, jwtMemberDetail.getMemberId());
 		return ResponseEntity.ok(ApiResponse.success("프로필 생성 성공"));
+	}
+
+	@PatchMapping("/password")
+	@Operation(
+		summary = "비밀번호 변경",
+		description = "회원의 전화번호와 새 비밀번호를 사용하여 비밀번호를 변경합니다. <br>"
+			+ "해당 API를 호출하기 전 문자 인증 절차가 선행되어야 합니다."
+	)
+	public ResponseEntity<ApiResponse<String>> changePassword(@RequestBody PwdReq req) {
+		memberService.changePassword(req.phoneNumber(), req.newPassword());
+		return ResponseEntity.ok(ApiResponse.success("비밀번호가 변경되었습니다."));
 	}
 
 	@GetMapping("/mypage")
