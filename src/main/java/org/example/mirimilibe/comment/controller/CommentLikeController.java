@@ -3,8 +3,10 @@ package org.example.mirimilibe.comment.controller;
 import org.example.mirimilibe.comment.dto.CommentLikeRequest;
 import org.example.mirimilibe.comment.service.CommentLikeService;
 import org.example.mirimilibe.global.ApiResponse;
+import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.domain.Member;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,9 +26,9 @@ public class CommentLikeController {
 	public ResponseEntity<ApiResponse<Void>> likeComment(
 		@PathVariable Long commentId,
 		@RequestBody CommentLikeRequest req,
-		Member user
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
-		commentLikeService.reactToComment(user.getId(), commentId, req.type());
+		commentLikeService.reactToComment(jwtMemberDetail.getMemberId(), commentId, req.type());
 		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 }

@@ -15,6 +15,7 @@ import org.example.mirimilibe.global.auth.dto.RefreshDTO;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.error.SmsErrorCode;
+import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.global.auth.dto.SignUpReq;
@@ -195,7 +196,7 @@ public class AuthService {
 
 	private boolean checkMilitaryInfoInit(Long memberId) {
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		if (militaryInfo.getMiliStatus().equals(MiliStatus.ENLISTED)) {
 			return militaryInfo.getMiliType() != null;

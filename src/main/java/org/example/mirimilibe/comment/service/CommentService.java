@@ -13,6 +13,7 @@ import org.example.mirimilibe.comment.repository.CommentSummaryResponse;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.global.error.CommentErrorCode;
 import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.error.PostErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
@@ -47,7 +48,7 @@ public class CommentService {
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		MilitaryInfo info = militaryInfoRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
 
 		// 1. 군구분 매칭

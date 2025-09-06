@@ -10,10 +10,13 @@ import org.example.mirimilibe.common.domain.Unit;
 import org.example.mirimilibe.global.auth.service.CoolSmsService;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.error.SmsErrorCode;
+import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
 import org.example.mirimilibe.member.dto.MilitaryInfoReq;
+import org.example.mirimilibe.member.dto.MilitaryInfoRes;
+import org.example.mirimilibe.member.dto.MyPageRes;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
 import org.example.mirimilibe.member.repository.UnitRepository;
@@ -42,7 +45,7 @@ public class MemberService {
 	public void createMilitaryInfo(MiliStatus miliStatus, Member member) {
 		// 1. MilitaryInfo가 이미 존재하는지 확인
 		if (militaryInfoRepository.existsByMemberId(member.getId())) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_ALREADY_EXISTS);
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_ALREADY_EXISTS);
 		}
 
 		// 2. MilitaryInfo 객체 생성
@@ -58,7 +61,11 @@ public class MemberService {
 	public void updateMilitaryInfo(MilitaryInfoReq militaryInfoReq, Long memberId) {
 		// 1. MilitaryInfo 객체 조회
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		if(militaryInfo.getMiliStatus() == MiliStatus.PRE_ENLISTED) {
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_ACCESS);
+		}
 
 		Specialty specialty = Optional.ofNullable(militaryInfoReq.specialtyId())
 			.flatMap(specialtyRepository::findById)
@@ -77,7 +84,7 @@ public class MemberService {
 
 	public void changePassword(String phoneNumber, String newPassword) {
 		// 0. 문자 인증 완료 여부 확인
-		if( !coolSmsService.isCertificationCompleted(phoneNumber)) {
+		if (!coolSmsService.isCertificationCompleted(phoneNumber)) {
 			throw new MiriMiliException(SmsErrorCode.NEED_SMS_VERIFICATION);
 		}
 
@@ -93,6 +100,31 @@ public class MemberService {
 
 		// 4. 회원 정보 저장
 		memberRepository.save(member);
+	}
+
+	public MyPageRes getMilitaryInfo(Long memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		MilitaryInfoRes militaryInfoRes=MilitaryInfoRes.fromEntity(militaryInfo);
+
+		return MyPageRes.of(militaryInfo.getMiliStatus(), member.getNickname(), member.getNumber(), militaryInfoRes);
+	}
+
+	public void updateMiliStatus(Long memberId) {
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		if(militaryInfo.getMiliStatus() != MiliStatus.PRE_ENLISTED) {
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_UPDATE);
+		}
+
+		militaryInfo.setMiliStatus(MiliStatus.ENLISTED);
+
+		militaryInfoRepository.save(militaryInfo);
 	}
 
 	public void applyImmutableFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
@@ -113,7 +145,7 @@ public class MemberService {
 		if (currentValue == null) {
 			setter.accept(newValue);
 		} else if (!currentValue.equals(newValue)) {
-			throw new MiriMiliException(MemberErrorCode.MILITARY_INFO_CANNOT_UPDATE);
+			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_UPDATE);
 		}
 	}
 

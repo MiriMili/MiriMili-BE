@@ -11,6 +11,7 @@ import org.example.mirimilibe.common.domain.Category;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.error.PostErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
@@ -95,7 +96,7 @@ public class PostService {
 
 		Member writer = post.getWriter();
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(writer.getId())
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MILITARY_INFO_NOT_FOUND));
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		// 카테고리 이름 추출
 		List<String> categoryNames = postCategoryRepository.findAllByPost(post).stream()
