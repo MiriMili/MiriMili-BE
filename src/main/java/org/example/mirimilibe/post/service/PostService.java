@@ -10,6 +10,7 @@ import org.example.mirimilibe.comment.repository.CommentRepository;
 import org.example.mirimilibe.common.domain.Category;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.global.CommonPageResponse;
+import org.example.mirimilibe.global.auth.service.S3UploadService;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.error.PostErrorCode;
@@ -51,6 +52,7 @@ public class PostService {
 	private final CommentRepository commentRepository;
 	private final MilitaryInfoRepository militaryInfoRepository;
 	private final PostLikeRepository postLikeRepository;
+	private final S3UploadService s3UploadService;
 
 	@Transactional
 	public Long createPost(Long memberId, PostCreateRequest req) {
@@ -111,6 +113,11 @@ public class PostService {
 		// 댓글 수
 		Long commentCount = commentRepository.countByPostId(postId);
 
+		List<String> imageKeys = post.getImagesUrl(); // 엔티티 필드명에 맞게 수정
+		List<String> imageUrls = imageKeys == null || imageKeys.isEmpty()
+			? List.of()
+			: imageKeys.stream().map(s3UploadService::presignGet).toList();
+
 		return new PostDetailResponse(
 			post.getId(),
 			post.getTitle(),
@@ -119,7 +126,7 @@ public class PostService {
 			militaryInfo.getSpecialty().getValue(),
 			militaryInfo.getMiliStatus(),
 			post.getCreatedAt(),
-			post.getImagesUrl(),
+			imageUrls,
 			categoryNames,
 			post.getTargetMiliType(),
 			targetSpecialtyNames,
