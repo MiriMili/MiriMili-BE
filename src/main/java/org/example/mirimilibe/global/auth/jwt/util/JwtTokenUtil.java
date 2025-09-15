@@ -1,5 +1,6 @@
 package org.example.mirimilibe.global.auth.jwt.util;
 
+import java.util.Date;
 import java.util.Optional;
 
 import org.example.mirimilibe.member.domain.Member;
@@ -22,5 +23,7 @@ public interface JwtTokenUtil {
 	Optional<String> extractAccessToken(HttpServletRequest request);
 
 	Optional<Long> extractId(String token);
+
+	Optional<Date> extractExpiration(String token);
 
 }

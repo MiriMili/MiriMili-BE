@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.example.mirimilibe.global.auth.jwt.filter.JwtAuthenticationFilter;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
+import org.example.mirimilibe.global.auth.service.BlackListService;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,8 +33,7 @@ public class SecurityConfig {
 
 	private final UserDetailsService loginService;
 	private final JwtTokenUtil jwtTokenUtil;
-	private final ObjectMapper objectMapper;
-	private final MemberRepository memberRepository;
+	private final BlackListService blackListService;
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -81,7 +81,7 @@ public class SecurityConfig {
 
 	@Bean
 	public JwtAuthenticationFilter jwtAuthenticationFilter() {
-		return new JwtAuthenticationFilter(jwtTokenUtil);
+		return new JwtAuthenticationFilter(jwtTokenUtil, blackListService);
 	}
 
 	@Bean

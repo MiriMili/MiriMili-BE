@@ -47,7 +47,7 @@ public class AuthService {
 	private final MemberService memberService;
 	private final MemberTermRepository memberTermRepository;
 	private final MilitaryInfoRepository militaryInfoRepository;
-	private final CoolSmsService coolSmsService;
+	private final BlackListService blackListService;
 
 	public void signUp(SignUpReq signUpReq) {
 		//0. 문자 인증 여부 조회
@@ -171,13 +171,17 @@ public class AuthService {
 	}
 
 	@Transactional
-	public void logout(Long memberId) {
+	public void logout(Long memberId, String accessToken) {
 		// 1. 전화번호로 회원 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		// 2. 리프레시 토큰 초기화
 		member.updateRefreshToken(null);
+
+		// 3. 액세스 토큰 블랙리스트에 등록
+		accessToken = accessToken.replace("Bearer ", "").trim();
+		blackListService.addBlacklist(accessToken);
 
 		log.info("로그아웃 성공: 사용자 ID={}", memberId);
 	}

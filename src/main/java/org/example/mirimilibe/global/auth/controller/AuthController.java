@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -87,8 +88,9 @@ public class AuthController {
 		description = "사용자의 리프레시 토큰을 무효화하여 로그아웃 처리하는 API입니다. <br>"
 			+ "로그아웃 시 클라이언트 측에서도 액세스 토큰과 리프레시 토큰을 삭제해야 합니다."
 	)
-	public ResponseEntity<ApiResponse<String>> logout(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
-		authService.logout(jwtMemberDetail.getMemberId());
+	public ResponseEntity<ApiResponse<String>> logout(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
+		@RequestHeader("Authorization") String authorizationHeader) {
+		authService.logout(jwtMemberDetail.getMemberId(), authorizationHeader);
 		return ResponseEntity.ok(ApiResponse.success("로그아웃 되었습니다."));
 	}
 }
