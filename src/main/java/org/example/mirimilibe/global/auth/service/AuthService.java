@@ -171,15 +171,15 @@ public class AuthService {
 	}
 
 	@Transactional
-	public void logout(String phoneNumber) {
+	public void logout(Long memberId) {
 		// 1. 전화번호로 회원 조회
-		Member member = memberRepository.findByNumber(phoneNumber)
+		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
 		// 2. 리프레시 토큰 초기화
 		member.updateRefreshToken(null);
 
-		log.info("로그아웃 성공: 전화번호={}, 사용자 ID={}", phoneNumber, member.getId());
+		log.info("로그아웃 성공: 사용자 ID={}", memberId);
 	}
 
 	public void checkDuplicatePhoneNumber(String phoneNumber) {
