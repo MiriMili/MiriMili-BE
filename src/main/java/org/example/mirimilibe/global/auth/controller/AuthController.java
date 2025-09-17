@@ -11,8 +11,10 @@ import org.example.mirimilibe.global.auth.dto.SignUpReq;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -80,15 +82,16 @@ public class AuthController {
 		return ResponseEntity.ok(ApiResponse.success("사용 가능한 닉네임입니다."));
 	}
 
-	@GetMapping("/test")
-	@Operation(	summary = "테스트용 사용자 정보 조회" )
-	public ResponseEntity<?> getUserDetail(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
-		// 테스트용으로 현재 로그인한 사용자의 정보를 반환
-		// 실제로는 인증된 사용자 정보를 가져오는 로직이 필요합니다.
-		Long userId=jwtMemberDetail.getMemberId();
-		String phoneNum=jwtMemberDetail.getUsername();
-
-		return ResponseEntity.ok("userId: " + userId + ", phoneNum: " + phoneNum);
+	@PatchMapping("/logout")
+	@Operation(
+		summary = "로그아웃",
+		description = "사용자의 리프레시 토큰을 무효화하여 로그아웃 처리하는 API입니다. <br>"
+			+ "로그아웃 시 클라이언트 측에서도 액세스 토큰과 리프레시 토큰을 삭제해야 합니다."
+	)
+	public ResponseEntity<ApiResponse<String>> logout(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
+		@RequestHeader("Authorization") String authorizationHeader) {
+		authService.logout(jwtMemberDetail.getMemberId(), authorizationHeader);
+		return ResponseEntity.ok(ApiResponse.success("로그아웃 되었습니다."));
 	}
 }
 

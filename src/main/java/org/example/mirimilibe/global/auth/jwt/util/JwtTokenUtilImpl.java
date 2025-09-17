@@ -152,5 +152,8 @@ public class JwtTokenUtilImpl implements JwtTokenUtil {
 			.getPayload();
 	}
 
+	public Optional<Date> extractExpiration(String token) {
+		return Optional.ofNullable(extractClaims(token).getExpiration());
+	}
 
 }
