@@ -5,11 +5,7 @@ import java.util.List;
 
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.auth.service.BlackListService;
-import org.example.mirimilibe.global.error.MemberErrorCode;
-import org.example.mirimilibe.global.exception.MiriMiliException;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -61,14 +57,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		if (accessToken == null) {
 			log.warn("Authorization 헤더에 access-token이 없습니다.");
-			request.setAttribute("exception", new MiriMiliException(MemberErrorCode.ACCESS_TOKEN_NOT_FOUND));
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 			return;
 		}
 
 		if (blackListService.isBlacklisted(accessToken)) {
-			log.warn("블랙리스트에 등록된 access-token: {}", accessToken);
+			log.warn("블랙리스트에 등록된 access-token 요청입니다.");
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			response.setContentType("application/json;charset=UTF-8");
 			return;
 		}
 
@@ -94,12 +89,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 				return;
 			}
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			response.setContentType("application/json;charset=UTF-8");
 
 		}catch (Exception e) {
 			//6. 토큰이 유효하지 않은 경우 예외 처리
 			log.error("유효하지 않은 access-token: {}", accessToken, e);
-			throw new MiriMiliException(MemberErrorCode.ACCESS_FORBIDDEN);
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		}
 	}
 }
