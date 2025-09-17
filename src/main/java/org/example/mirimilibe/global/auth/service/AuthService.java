@@ -37,6 +37,13 @@ public class AuthService {
 
 	@Transactional
 	public LoginSuccessRes login(LoginReq loginReq) {
+		// 0. 전화번호로 회원 조회
+		Member member = memberRepository.findByNumber(loginReq.phoneNumber())
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		if(member.getStatus() == Status.INACTIVE) {
+			throw new MiriMiliException(MemberErrorCode.ACCESS_FORBIDDEN);
+		}
 
 		// 1. 인증 시도
 		Authentication authentication;
@@ -51,14 +58,6 @@ public class AuthService {
 
 		// 2. 인증된 사용자 정보 추출
 		JwtMemberDetail userDetails = (JwtMemberDetail)authentication.getPrincipal();
-		Long memberId = userDetails.getMemberId();
-
-		Member member = memberRepository.findById(memberId)
-			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-		if (member.getStatus() == Status.INACTIVE) {
-			throw new MiriMiliException(MemberErrorCode.ACCESS_FORBIDDEN);
-		}
 
 		// 3. JWT 생성
 		Authentication newAuth = jwtTokenUtil.createAuthentication(member);
@@ -70,7 +69,7 @@ public class AuthService {
 		member.updateRefreshToken(refreshToken);
 
 		//4-1. 현역 여부 및 군 정보 초기화 여부 확인
-		boolean isMilitaryInfoInit = checkMilitaryInfoInit(memberId);
+		boolean isMilitaryInfoInit = checkMilitaryInfoInit(userDetails.getMemberId());
 
 		// 5. 결과 반환
 		return LoginSuccessRes.of(accessToken, refreshToken, member.getNickname(), isMilitaryInfoInit);
