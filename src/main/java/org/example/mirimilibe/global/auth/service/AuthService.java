@@ -26,6 +26,7 @@ import org.example.mirimilibe.member.repository.MemberTermRepository;
 import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
 import org.example.mirimilibe.member.service.MemberService;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -101,42 +102,44 @@ public class AuthService {
 
 	@Transactional
 	public LoginSuccessRes login(LoginReq loginReq) {
+
+		// 1. 인증 시도
+		Authentication authentication;
+
 		try {
-			// 1. 인증 시도
-			Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(
-					loginReq.phoneNumber(),
-					loginReq.password()
-				)
+			authentication = authenticationManager.authenticate(
+				new UsernamePasswordAuthenticationToken(loginReq.phoneNumber(), loginReq.password())
 			);
-
-			// 2. 인증된 사용자 정보 추출
-			JwtMemberDetail userDetails = (JwtMemberDetail)authentication.getPrincipal();
-			Long memberId = userDetails.getMemberId();
-
-			Member member = memberRepository.findById(memberId)
-				.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
-
-			// 3. JWT 생성
-			Authentication newAuth = jwtTokenUtil.createAuthentication(member);
-			String accessToken = jwtTokenUtil.generateAccessToken(newAuth);
-			String refreshToken = jwtTokenUtil.generateRefreshToken(newAuth);
-
-			// 4. 로그인 성공 로그
-			log.info("로그인 성공: 전화번호={}, 사용자 ID={}", loginReq.phoneNumber(), member.getId());
-			member.updateRefreshToken(refreshToken);
-
-			//4-1. 현역 여부 및 군 정보 초기화 여부 확인
-			boolean isMilitaryInfoInit = checkMilitaryInfoInit(memberId);
-
-			// 5. 결과 반환
-			return LoginSuccessRes.of(accessToken, refreshToken, member.getNickname(), isMilitaryInfoInit);
+		} catch (BadCredentialsException e) {
+			throw new MiriMiliException(MemberErrorCode.PASSWORD_MISMATCH);
 		}
-		catch (Exception e) {
-			// 인증 실패 시 예외 처리
-			log.warn("로그인 실패: 전화번호={}, {}", loginReq.phoneNumber(), e.getMessage());
-			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
+
+		// 2. 인증된 사용자 정보 추출
+		JwtMemberDetail userDetails = (JwtMemberDetail)authentication.getPrincipal();
+		Long memberId = userDetails.getMemberId();
+
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		if (member.getStatus() == Status.INACTIVE) {
+			throw new MiriMiliException(MemberErrorCode.ACCESS_FORBIDDEN);
 		}
+
+		// 3. JWT 생성
+		Authentication newAuth = jwtTokenUtil.createAuthentication(member);
+		String accessToken = jwtTokenUtil.generateAccessToken(newAuth);
+		String refreshToken = jwtTokenUtil.generateRefreshToken(newAuth);
+
+		// 4. 로그인 성공 로그
+		log.info("로그인 성공: 전화번호={}, 사용자 ID={}", loginReq.phoneNumber(), member.getId());
+		member.updateRefreshToken(refreshToken);
+
+		//4-1. 현역 여부 및 군 정보 초기화 여부 확인
+		boolean isMilitaryInfoInit = checkMilitaryInfoInit(memberId);
+
+		// 5. 결과 반환
+		return LoginSuccessRes.of(accessToken, refreshToken, member.getNickname(), isMilitaryInfoInit);
+
 	}
 
 	@Transactional

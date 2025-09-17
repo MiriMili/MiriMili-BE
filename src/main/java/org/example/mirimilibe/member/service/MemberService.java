@@ -149,4 +149,13 @@ public class MemberService {
 		}
 	}
 
+	public void deleteMember(Long memberId) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		member.deleteMember();
+
+		memberRepository.save(member);
+	}
+
 }
