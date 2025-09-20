@@ -10,14 +10,15 @@ import java.util.Set;
 
 import org.example.mirimilibe.global.auth.dto.PresignPutResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import com.github.f4b6a3.ulid.UlidCreator;
 
 import lombok.RequiredArgsConstructor;
+import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
-import software.amazon.awssdk.services.s3.model.ObjectCannedACL;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
@@ -50,7 +51,6 @@ public class S3UploadService {
 			.bucket(bucket)
 			.key(key)
 			.contentType(contentType)
-			.acl(ObjectCannedACL.PRIVATE)   // 비공개 유지乳脂
 			.build();
 
 		PutObjectPresignRequest preq = PutObjectPresignRequest.builder()

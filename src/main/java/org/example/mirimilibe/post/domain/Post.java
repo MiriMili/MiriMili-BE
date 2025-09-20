@@ -19,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderColumn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -43,14 +44,16 @@ public class Post {
 
 	private String body;
 
-	private Long viewCount;
+	private Long viewCount=0L;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "target_mili_type", nullable = false)
 	private MiliType targetMiliType;
 
 	@ElementCollection
-	private List<String> imagesUrl;
+	@Column(name = "image_key", length = 1024)
+	@OrderColumn(name = "ord")
+	private List<String> imageKeys;
 
 	private LocalDateTime createdAt;
 

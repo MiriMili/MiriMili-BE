@@ -3,6 +3,7 @@ package org.example.mirimilibe.post.service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.example.mirimilibe.comment.domain.ReactionType;
@@ -57,13 +58,18 @@ public class PostService {
 	@Transactional
 	public Long createPost(Long memberId, PostCreateRequest req) {
 		Member writer = memberRepository.findById(memberId)
-			.orElseThrow(() -> new IllegalArgumentException("작성자 없음"));
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		List<String> safeKeys = Optional.ofNullable(req.imageKeys()).orElse(List.of());
+		if (safeKeys.size() > 5) {
+			throw new IllegalArgumentException("이미지는 최대 5장까지만 업로드할 수 있습니다.");
+		}
 
 		Post post = Post.builder()
 			.writer(writer)
 			.title(req.title())
 			.body(req.body())
-			.imagesUrl(req.imagesUrl())
+			.imageKeys(safeKeys)
 			.viewCount(0L)
 			.targetMiliType(req.targetMiliType())
 			.createdAt(LocalDateTime.now())
@@ -71,19 +77,23 @@ public class PostService {
 
 		postRepository.save(post);
 
-		// 카테고리 연결
-		req.categoryIds().forEach(categoryId -> {
-			Category category = categoryRepository.findById(categoryId)
-				.orElseThrow(() -> new IllegalArgumentException("카테고리 없음"));
-			postCategoryRepository.save(new PostCategory(null, post, category));
-		});
+		var categoryIds   = Optional.ofNullable(req.categoryIds()).orElse(List.of());
+		var specialtyIds  = Optional.ofNullable(req.specialtyIds()).orElse(List.of());
 
-		// 특기 연결
-		req.specialtyIds().forEach(specialtyId -> {
-			Specialty specialty = specialtyRepository.findById(specialtyId)
-				.orElseThrow(() -> new IllegalArgumentException("특기 없음"));
-			postSpecialtyRepository.save(new PostSpecialty(null, post, specialty));
-		});
+		var categories = categoryRepository.findAllById(categoryIds);
+		var specialties = specialtyRepository.findAllById(specialtyIds);
+
+		postCategoryRepository.saveAll(
+			categories.stream()
+				.map(c -> new PostCategory(null, post, c))
+				.toList()
+		);
+
+		postSpecialtyRepository.saveAll(
+			specialties.stream()
+				.map(s -> new PostSpecialty(null, post, s))
+				.toList()
+		);
 
 		return post.getId();
 	}
@@ -113,7 +123,7 @@ public class PostService {
 		// 댓글 수
 		Long commentCount = commentRepository.countByPostId(postId);
 
-		List<String> imageKeys = post.getImagesUrl(); // 엔티티 필드명에 맞게 수정
+		List<String> imageKeys = post.getImageKeys(); // 엔티티 필드명에 맞게 수정
 		List<String> imageUrls = imageKeys == null || imageKeys.isEmpty()
 			? List.of()
 			: imageKeys.stream().map(s3UploadService::presignGet).toList();

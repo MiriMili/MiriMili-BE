@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.example.mirimilibe.common.Enum.MiliType;
 
+import jakarta.validation.constraints.Size;
+
 public record PostCreateRequest(
 	String title,
 	String body,
-	List<String> imagesUrl,
+	@Size(max = 5) List<String> imageKeys,
 	MiliType targetMiliType,
 	List<Long> categoryIds,
 	List<Long> specialtyIds
