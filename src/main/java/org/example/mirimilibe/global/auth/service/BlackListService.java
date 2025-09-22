@@ -1,5 +1,6 @@
 package org.example.mirimilibe.global.auth.service;
 
+import java.time.Duration;
 import java.util.Date;
 
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
@@ -25,7 +26,7 @@ public class BlackListService {
 		long remainingExpiration = expiration.getTime() - now;
 
 		if (remainingExpiration > 0) { // 남은 만료시간만큼 블랙리스트로 등록
-			stringRedisTemplate.opsForValue().set(key, "logout", remainingExpiration);
+			stringRedisTemplate.opsForValue().set(key, "logout",  Duration.ofMillis(remainingExpiration));
 		}
 
 	}

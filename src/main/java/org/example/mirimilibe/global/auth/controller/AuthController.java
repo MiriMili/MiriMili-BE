@@ -33,22 +33,6 @@ public class AuthController {
 
 	private final AuthService authService;
 
-	@PostMapping("/signup")
-	@Operation(
-		summary = "회원가입",
-		description = "회원가입 API입니다. 아래 정보를 입력받습니다.<br>"
-			+ "- 전화번호: 01011112222 형식, 11자리 숫자 (필수)<br>"
-			+ "- 비밀번호: 문자열, 공백 불가 (필수)<br>"
-			+ "- 닉네임: 문자열, 공백 불가 (필수)<br>"
-			+ "- serviceAgreed, privacyPolicyAgreed, marketingConsentAgreed: 약관 동의 여부, service와 privacy는 true여야 함 (필수)<br>"
-			+ "- MiliStatus: ENUM 타입, 'PRE_ENLISTED, ENLISTED, DISCHARGED' 중 하나 (필수)<br>"
-			+ "모든 필드는 필수로 입력해야 합니다."
-	)
-	public ResponseEntity<ApiResponse<?>> signUp(@RequestBody @Valid SignUpReq signUpReq) {
-		authService.signUp(signUpReq);
-		return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다."));
-	}
-
 	@PostMapping("/login")
 	@Operation(
 		summary = "로그인",

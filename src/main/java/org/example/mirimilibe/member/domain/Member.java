@@ -46,4 +46,11 @@ public class Member {
 	}
 
 	public void updatePassword(String password) { this.password = password; }
+
+	public void deleteMember() {
+		this.status = Status.INACTIVE;
+		this.nickname = "탈퇴한 회원입니다";
+		this.refreshToken = null;
+		this.password = null;
+	}
 }
