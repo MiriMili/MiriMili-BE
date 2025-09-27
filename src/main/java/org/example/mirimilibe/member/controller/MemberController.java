@@ -2,19 +2,17 @@ package org.example.mirimilibe.member.controller;
 
 import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
-import org.example.mirimilibe.member.dto.MilitaryInfoReq;
+import org.example.mirimilibe.global.auth.dto.SignUpReq;
+import org.example.mirimilibe.global.auth.service.AuthService;
 import org.example.mirimilibe.member.dto.PwdReq;
-import org.example.mirimilibe.member.dto.MilitaryInfoRes;
-import org.example.mirimilibe.member.dto.MyPageRes;
 import org.example.mirimilibe.member.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,21 +24,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberController {
 	private final MemberService memberService;
+	private final AuthService authService;
 
-	@PostMapping("/profile")
+	@PostMapping("/signup")
 	@Operation(
-		summary = "상세 프로필 설정/수정",
-		description = "현역 사용자의 군 정보를 설정하는 API입니다. (마이페이지: 현역 사용자의 상세 프로필)<br>"
-			+ "MiliType은 ENUM 타입으로, 'ARMY, NAVY, AIR_FORCE' 중 하나를 입력해주세요. 해당 필드는 필수로 입력해야 합니다. <br>"
-			+ "이미 프로필이 존재하는 경우, 해당 API는 프로필을 수정합니다. <br>"
-			+ "- 기존값이 null이었던 필드에 새로운 값을 입력하는 것은 가능합니다. <br>"
-			+ "- 기존값이 존재하는 필드에 새로운 값을 입력하는 경우 오류를 반환합니다. <br>"
-			+ "- 입대 전 사용자일 경우 오류를 반환합니다. <br>"
-			+ "마이페이지에서 호출하실 때는 기존 정보들을 불러오신 후, 수정하실 필드만 변경하여 보내주시면 됩니다. <br>"
+		summary = "회원가입",
+		description = "회원가입 API입니다. 아래 정보를 입력받습니다.<br>"
+			+ "- 전화번호: 01011112222 형식, 11자리 숫자 (필수)<br>"
+			+ "- 비밀번호: 문자열, 공백 불가 (필수)<br>"
+			+ "- 닉네임: 문자열, 공백 불가 (필수)<br>"
+			+ "- serviceAgreed, privacyPolicyAgreed, marketingConsentAgreed: 약관 동의 여부, service와 privacy는 true여야 함 (필수)<br>"
+			+ "- MiliStatus: ENUM 타입, 'PRE_ENLISTED, ENLISTED, DISCHARGED' 중 하나 (필수)<br>"
+			+ "모든 필드는 필수로 입력해야 합니다."
 	)
-	public ResponseEntity<ApiResponse<String>> updateProfile(@Valid @RequestBody MilitaryInfoReq req, @AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
-		memberService.updateMilitaryInfo(req, jwtMemberDetail.getMemberId());
-		return ResponseEntity.ok(ApiResponse.success("프로필 생성 성공"));
+	public ResponseEntity<ApiResponse<?>> signUp(@RequestBody @Valid SignUpReq signUpReq) {
+		memberService.signUp(signUpReq);
+		return ResponseEntity.ok(ApiResponse.success("회원가입이 완료되었습니다."));
 	}
 
 	@PatchMapping("/password")
@@ -57,26 +56,19 @@ public class MemberController {
 		return ResponseEntity.ok(ApiResponse.success("비밀번호가 변경되었습니다."));
 	}
 
-	@GetMapping("/mypage")
-	@Operation(
-		summary = "마이페이지 정보 조회",
-		description = "사용자의 기본 정보, 군 정보를 조회하는 API입니다. <br>"
-			+ "아직 입력되지 않은 정보는 null로 반환됩니다."
-	)
-	public ResponseEntity<ApiResponse<MyPageRes>> getProfile(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
-		MyPageRes res = memberService.getMilitaryInfo(jwtMemberDetail.getMemberId());
-		return ResponseEntity.ok(ApiResponse.success(res));
-	}
 
-	@PatchMapping("/milistatus")
+	@PatchMapping("/delete")
 	@Operation(
-		summary = "입대 전 -> 현역 변경",
-		description = "입대 전 사용자의 MiliStatus를 현역으로 변경하는 API입니다. <br>"
-			+ "요청한 사용자의 현 상태가 PRE_ENLISTED가 아닐 경우 오류를 반환합니다. <br>"
+		summary = "회원 탈퇴",
+		description = "로그인한 사용자의 회원 탈퇴를 처리하는 API입니다. <br>"
+			+ "회원 탈퇴 시 사용자의 전화번호를 유지하여 재가입을 방지합니다. <br>"
+			+ "해당 사용자는 회원 탈퇴 후 로그아웃 처리됩니다. <br>"
 	)
-	public ResponseEntity<ApiResponse<String>> changeMiliStatus(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
-		memberService.updateMiliStatus(jwtMemberDetail.getMemberId());
-		return ResponseEntity.ok(ApiResponse.success("군 상태 변경 성공"));
+	public ResponseEntity<ApiResponse<String>> deleteMember(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
+		@RequestHeader("Authorization") String authorizationHeader) {
+		memberService.deleteMember(jwtMemberDetail.getMemberId());
+		authService.logout(jwtMemberDetail.getMemberId(), authorizationHeader);
+		return ResponseEntity.ok(ApiResponse.success("회원 탈퇴 성공"));
 	}
 
 }

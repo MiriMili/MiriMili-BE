@@ -29,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	protected List<String> filterPassList=List.of(
 		"/auth/login",
 		"/actuator/prometheus",
-		"/auth/signup",
+		"/member/signup",
 		"/auth/checkNickname",
 		"/swagger-ui/**",
 		"/swagger-resources/**",
@@ -73,7 +73,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		//5. SecurityContext에 인증 정보 저장
 		try {
 			authentication = jwtTokenUtil.getAuthentication(accessToken);
-			log.info("인증된 사용자: {}", authentication.getName());
 
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			response.setHeader("Authorization", GRANT_TYPE + accessToken);
