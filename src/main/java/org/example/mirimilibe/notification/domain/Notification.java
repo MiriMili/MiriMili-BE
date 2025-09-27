@@ -1,42 +1,51 @@
 package org.example.mirimilibe.notification.domain;
 
-import java.time.LocalDateTime;
-
-import org.example.mirimilibe.common.Enum.NoticeType;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.example.mirimilibe.member.domain.Member;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Builder
 @Table(name = "notification")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Notification {
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
 
-	@ManyToOne
-	@JoinColumn(name = "member_id", nullable = false)
-	private Member member;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Enumerated(EnumType.STRING)
-	private NoticeType type;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
-	private String content;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private NotificationType type;
 
-	private Boolean isRead;
+    @Column(nullable = false, length = 100)
+    private String title;
 
-	private LocalDateTime createdAt;
+    @Column(columnDefinition = "TEXT")
+    private String message;
+
+    private String targetUrl;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean isRead = false;
+
+    private LocalDateTime createdAt;
+
+    private Long targetId;
+
+    public void markAsRead() {
+        this.isRead = true;
+    }
 }

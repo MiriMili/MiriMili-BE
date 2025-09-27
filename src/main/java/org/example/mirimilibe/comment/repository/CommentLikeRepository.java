@@ -13,6 +13,9 @@ import org.springframework.data.repository.query.Param;
 public interface CommentLikeRepository extends JpaRepository<CommentLike, Long> {
 	Optional<CommentLike> findByMemberIdAndCommentId(Long memberId, Long commentId);
 
+	@Query("SELECT COUNT(cl) FROM CommentLike cl WHERE cl.comment.id = :commentId AND cl.type = :type")
+	Long countByCommentIdAndType(@Param("commentId") Long commentId, @Param("type") ReactionType type);
+
 	// CommentLikeRepository
 	@Query("""
 	SELECT cl.comment.id, COUNT(cl)

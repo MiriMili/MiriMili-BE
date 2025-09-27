@@ -28,4 +28,18 @@ public class CommonPageResponse<T> {
 			.build();
 	}
 
+	public static <T> CommonPageResponse<T> of(List<T> content, int currentPage, int size, long totalElements) {
+		int totalPages = (int) Math.ceil((double) totalElements / size);
+		boolean hasNext = currentPage < totalPages - 1;
+
+		return CommonPageResponse.<T>builder()
+			.content(content)
+			.totalPages(totalPages)
+			.totalElements(totalElements)
+			.currentPage(currentPage)
+			.size(size)
+			.hasNext(hasNext)
+			.build();
+	}
+
 }

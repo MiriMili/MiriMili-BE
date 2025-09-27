@@ -8,10 +8,12 @@ import org.example.mirimilibe.global.error.PostErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.repository.MemberRepository;
+import org.example.mirimilibe.notification.service.NotificationService;
 import org.example.mirimilibe.post.domain.Post;
 import org.example.mirimilibe.post.domain.PostLike;
 import org.example.mirimilibe.post.repository.PostLikeRepository;
 import org.example.mirimilibe.post.repository.PostRepository;
+import org.example.mirimilibe.ranking.service.RankingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,8 @@ public class PostLikeService {
 	private final PostRepository postRepository;
 	private final PostLikeRepository postLikeRepository;
 	private final MemberRepository memberRepository;
+	private final NotificationService notificationService;
+	private final RankingService rankingService;
 
 	@Transactional
 	public void reactToPost(Long memberId, Long postId, ReactionType type) {
@@ -35,6 +39,7 @@ public class PostLikeService {
 
 		Optional<PostLike> existing = postLikeRepository.findByMemberIdAndPostId(memberId, postId);
 
+		boolean isNewLike = false;
 		if (existing.isPresent()) {
 			PostLike like = existing.get();
 			if (like.getType() == type) {
@@ -47,6 +52,30 @@ public class PostLikeService {
 				.post(post)
 				.type(type)
 				.build());
+			isNewLike = true;
 		}
+
+		// 좋아요 알림 처리 (질문 작성자가 아닌 경우에만)
+		if (type == ReactionType.LIKE && !post.getWriter().getId().equals(memberId)) {
+			// 현재 좋아요 수 계산
+			Long currentLikeCount = postLikeRepository.countByPostIdAndType(postId, ReactionType.LIKE);
+
+			// 첫 번째 좋아요 알림
+			if (isNewLike && currentLikeCount == 1) {
+				notificationService.createQuestionFirstLikeNotification(post.getWriter().getId(), postId);
+			}
+			// 마일스톤 좋아요 알림 (5, 10, 20, 30, 40...)
+			else if (isNewLike && currentLikeCount % 10 == 0 ||
+					(currentLikeCount == 5 && isNewLike)) {
+				notificationService.createQuestionMilestoneLikeNotification(
+					post.getWriter().getId(),
+					currentLikeCount.intValue(),
+					postId
+				);
+			}
+		}
+
+		// 마지막 활동 시간 업데이트
+		rankingService.updateLastActivity(postId);
 	}
 }

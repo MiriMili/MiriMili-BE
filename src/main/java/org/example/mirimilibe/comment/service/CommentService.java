@@ -20,10 +20,12 @@ import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
+import org.example.mirimilibe.notification.service.NotificationService;
 import org.example.mirimilibe.post.domain.Post;
 import org.example.mirimilibe.post.domain.PostSpecialty;
 import org.example.mirimilibe.post.repository.PostRepository;
 import org.example.mirimilibe.post.repository.PostSpecialtyRepository;
+import org.example.mirimilibe.ranking.service.RankingService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +41,8 @@ public class CommentService {
 	private final MilitaryInfoRepository militaryInfoRepository;
 	private final MemberRepository memberRepository;
 	private final CommentLikeRepository commentLikeRepository;
+	private final NotificationService notificationService;
+	private final RankingService rankingService;
 	@Transactional
 	public Long createComment(Long memberId, Long postId, CommentCreateRequest req)  {
 		Post post = postRepository.findById(postId)
@@ -74,6 +78,32 @@ public class CommentService {
 			.build();
 
 		commentRepository.save(comment);
+
+		// 알림 발송
+		if (!post.getWriter().getId().equals(memberId)) {
+			// 질문 작성자에게 새 답변 알림
+			notificationService.createNewAnswerNotification(
+				post.getWriter().getId(),
+				writer.getNickname(),
+				post.getTitle(),
+				postId
+			);
+
+			// 기존 답변자들에게 새 답변 알림
+			List<Long> previousAnswererIds = commentRepository.findDistinctWriterIdsByPost(post)
+				.stream()
+				.filter(id -> !id.equals(memberId) && !id.equals(post.getWriter().getId()))
+				.toList();
+
+			for (Long answererId : previousAnswererIds) {
+				notificationService.createAnotherAnswerNotification(answererId, post.getTitle(), postId);
+			}
+		}
+
+		// 마지막 활동 시간 업데이트 및 베스트 답변 재계산
+		rankingService.updateLastActivity(postId);
+		rankingService.updateBestAnswersForPost(postId);
+
 		return comment.getId();
 	}
 

@@ -5,8 +5,6 @@ import java.util.List;
 import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
-import org.example.mirimilibe.global.auth.service.CustomUserDetailsService;
-import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
 import org.example.mirimilibe.post.dto.PostDetailResponse;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
@@ -66,9 +64,11 @@ public class PostController {
 	@Operation(summary = "게시글 리스트 조회 (페이징)", description = "선택된 카테고리 중 하나라도 포함된 게시글을 페이징하여 조회합니다.")
 	public ResponseEntity<ApiResponse<CommonPageResponse<PostListItemResponse>>> getPostsByCategories(
 		@RequestParam List<Long> categoryIds,
-		@ParameterObject Pageable pageable
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@RequestParam(defaultValue = "createdAt") String sortBy
 	) {
-		CommonPageResponse<PostListItemResponse> response = postService.getPostsByCategory(categoryIds, pageable);
+		CommonPageResponse<PostListItemResponse> response = postService.getPostsByCategory(categoryIds, page, size, sortBy);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
@@ -82,6 +82,17 @@ public class PostController {
 	) {
 		CommonPageResponse<PostListItemResponse> response = postService.searchPosts(keyword, pageable);
 		recentSearchService.add(jwtMemberDetail.getMemberId(), keyword);
+		return ResponseEntity.ok(ApiResponse.success(response));
+	}
+
+	@GetMapping("/answerable")
+	@Operation(summary = "답변 가능한 게시물 목록 조회", description = "현재 사용자가 답변할 수 있는 게시물들을 조회합니다.")
+	public ResponseEntity<ApiResponse<CommonPageResponse<PostListItemResponse>>> getAnswerablePosts(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size,
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
+	) {
+		CommonPageResponse<PostListItemResponse> response = postService.getAnswerablePosts(jwtMemberDetail.getMemberId(), page, size);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 }

@@ -44,6 +44,7 @@ public class Post {
 
 	private String body;
 
+	@Builder.Default
 	private Long viewCount=0L;
 
 	@Enumerated(EnumType.STRING)
@@ -58,9 +59,27 @@ public class Post {
 	private LocalDateTime createdAt;
 
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
 	private List<PostCategory> postCategories = new ArrayList<>();
+
+	@Builder.Default
+	private Boolean isHotQuestion = false;
+
+	private LocalDateTime lastActivityAt;
 
 	public void increaseViewCount() {
 		this.viewCount += 1;
+	}
+
+	public void markAsHotQuestion() {
+		this.isHotQuestion = true;
+	}
+
+	public void unmarkAsHotQuestion() {
+		this.isHotQuestion = false;
+	}
+
+	public void updateLastActivity() {
+		this.lastActivityAt = LocalDateTime.now();
 	}
 }

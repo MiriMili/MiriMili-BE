@@ -31,6 +31,7 @@ import org.example.mirimilibe.post.repository.PostCategoryRepository;
 import org.example.mirimilibe.post.repository.PostLikeRepository;
 import org.example.mirimilibe.post.repository.PostRepository;
 import org.example.mirimilibe.post.repository.PostSpecialtyRepository;
+import org.example.mirimilibe.post.repository.ScrapedPostRepository;
 import org.example.mirimilibe.post.repository.SpecialtyRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +54,7 @@ public class PostService {
 	private final CommentRepository commentRepository;
 	private final MilitaryInfoRepository militaryInfoRepository;
 	private final PostLikeRepository postLikeRepository;
+	private final ScrapedPostRepository scrapedPostRepository;
 	private final S3UploadService s3UploadService;
 
 	@Transactional
@@ -146,25 +148,66 @@ public class PostService {
 	}
 
 	@Transactional(readOnly = true)
-	public CommonPageResponse<PostListItemResponse> getPostsByCategory(List<Long> categoryIds, Pageable pageable) {
-		Page<Post> postPage = postRepository.findDistinctByCategories(categoryIds, pageable);
+	public CommonPageResponse<PostListItemResponse> getPostsByCategory(List<Long> categoryIds, int page, int size, String sortBy) {
+		List<Post> allPosts = postRepository.findDistinctByCategories(categoryIds);
 
-		List<Long> postIds = postPage.map(Post::getId).toList();
+		// HOT 질문 지수로 정렬하는 경우
+		if ("hotScore".equals(sortBy)) {
+			// HOT 질문 지수 계산하여 정렬
+			allPosts = allPosts.stream()
+				.sorted((a, b) -> {
+					double scoreA = calculateHotQuestionScore(a.getId(),
+						a.getLastActivityAt() != null ? a.getLastActivityAt() : a.getCreatedAt());
+					double scoreB = calculateHotQuestionScore(b.getId(),
+						b.getLastActivityAt() != null ? b.getLastActivityAt() : b.getCreatedAt());
+					return Double.compare(scoreB, scoreA); // 내림차순
+				})
+				.toList();
+		} else {
+			// 기본 정렬 (생성일시 내림차순)
+			allPosts = allPosts.stream()
+				.sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+				.toList();
+		}
 
+		// 페이징 처리
+		int start = page * size;
+		int end = Math.min(start + size, allPosts.size());
+		List<Post> pagedPosts = allPosts.subList(start, end);
+
+		List<Long> postIds = pagedPosts.stream().map(Post::getId).toList();
 		Map<Long, Long> commentCounts = commentRepository.countByPostIds(postIds);
 		Map<Long, Long> likeCounts = postLikeRepository.countByPostIdsAndType(postIds, ReactionType.LIKE);
 
-		Page<PostListItemResponse> dtoPage = postPage.map(post -> new PostListItemResponse(
-			post.getId(),
-			post.getTitle(),
-			post.getBody(),
-			commentCounts.getOrDefault(post.getId(), 0L),
-			likeCounts.getOrDefault(post.getId(), 0L),
-			post.getViewCount(),
-			post.getCreatedAt()
-		));
+		List<PostListItemResponse> dtoList = pagedPosts.stream()
+			.map(post -> new PostListItemResponse(
+				post.getId(),
+				post.getTitle(),
+				post.getBody(),
+				commentCounts.getOrDefault(post.getId(), 0L),
+				likeCounts.getOrDefault(post.getId(), 0L),
+				post.getViewCount(),
+				post.getCreatedAt()
+			))
+			.toList();
 
-		return CommonPageResponse.of(dtoPage);
+		return CommonPageResponse.of(dtoList, page, size, allPosts.size());
+	}
+
+	private double calculateHotQuestionScore(Long postId, LocalDateTime lastActivityAt) {
+		// RankingCalculationService와 동일한 로직 사용
+		Long likes = postLikeRepository.countByPostIdAndType(postId, ReactionType.LIKE);
+		Long dislikes = postLikeRepository.countByPostIdAndType(postId, ReactionType.DISLIKE);
+		Long views = postRepository.findById(postId).map(Post::getViewCount).orElse(0L);
+		Long answers = commentRepository.countByPostId(postId);
+		Long scraps = scrapedPostRepository.countByPostId(postId);
+
+		double baseScore = (likes * 5.0) + (dislikes * -2.0) + (views * 0.1) + (answers * 4.0) + (scraps * 5.0);
+
+		long hoursElapsed = java.time.Duration.between(lastActivityAt, LocalDateTime.now()).toHours();
+		double timeDecay = Math.pow(hoursElapsed + 1, 0.5);
+
+		return baseScore / timeDecay;
 	}
 
 	@Transactional(readOnly = true)
@@ -193,5 +236,68 @@ public class PostService {
 
 		return CommonPageResponse.of(dtoPage);
 
+	}
+
+	@Transactional(readOnly = true)
+	public CommonPageResponse<PostListItemResponse> getAnswerablePosts(Long memberId, int page, int size) {
+		MilitaryInfo memberInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		List<Post> allAnswerablePosts = postRepository.findAnswerablePosts(
+			memberInfo.getMiliType(),
+			memberInfo.getSpecialty()
+		);
+
+		// 답변 대기 지수로 정렬 (높은 순서대로)
+		allAnswerablePosts = allAnswerablePosts.stream()
+			.sorted((a, b) -> {
+				double scoreA = calculateWaitingAnswerScore(a.getId(), a.getCreatedAt());
+				double scoreB = calculateWaitingAnswerScore(b.getId(), b.getCreatedAt());
+				return Double.compare(scoreB, scoreA); // 내림차순
+			})
+			.toList();
+
+		// 페이징 처리
+		int start = page * size;
+		int end = Math.min(start + size, allAnswerablePosts.size());
+		List<Post> pagedPosts = allAnswerablePosts.subList(start, end);
+
+		List<Long> postIds = pagedPosts.stream().map(Post::getId).toList();
+		Map<Long, Long> commentCounts = commentRepository.countByPostIds(postIds);
+		Map<Long, Long> likeCounts = postLikeRepository.countByPostIdsAndType(postIds, ReactionType.LIKE);
+
+		List<PostListItemResponse> dtoList = pagedPosts.stream()
+			.map(post -> new PostListItemResponse(
+				post.getId(),
+				post.getTitle(),
+				post.getBody(),
+				commentCounts.getOrDefault(post.getId(), 0L),
+				likeCounts.getOrDefault(post.getId(), 0L),
+				post.getViewCount(),
+				post.getCreatedAt()
+			))
+			.toList();
+
+		return CommonPageResponse.of(dtoList, page, size, allAnswerablePosts.size());
+	}
+
+	private double calculateWaitingAnswerScore(Long postId, LocalDateTime createdAt) {
+		Long viewCount = postRepository.findById(postId).map(Post::getViewCount).orElse(0L);
+		Long questionLikes = postLikeRepository.countByPostIdAndType(postId, ReactionType.LIKE);
+		Long scrapCount = scrapedPostRepository.countByPostId(postId);
+		Long answerCount = commentRepository.countByPostId(postId);
+
+		double freshnessBonus = calculateFreshnessBonus(createdAt);
+
+		return (viewCount * 0.5) +
+			   (questionLikes * 3.0) +
+			   (scrapCount * 5.0) +
+			   (answerCount * -100.0) +
+			   (freshnessBonus * 50.0);
+	}
+
+	private double calculateFreshnessBonus(LocalDateTime createdAt) {
+		long daysElapsed = java.time.temporal.ChronoUnit.DAYS.between(createdAt, LocalDateTime.now());
+		return 50.0 / (daysElapsed + 1);
 	}
 }

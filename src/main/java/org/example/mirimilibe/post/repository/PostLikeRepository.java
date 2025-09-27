@@ -26,6 +26,9 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
 	""")
 	List<Object[]> countRawByPostIdsAndType(@Param("postIds") List<Long> postIds, @Param("type") ReactionType type);
 
+	@Query("SELECT COUNT(pl) FROM PostLike pl WHERE pl.post.id = :postId AND pl.type = :type")
+	Long countByPostIdAndType(@Param("postId") Long postId, @Param("type") ReactionType type);
+
 	default Map<Long, Long> countByPostIdsAndType(List<Long> postIds, ReactionType type) {
 		List<Object[]> result = countRawByPostIdsAndType(postIds, type);
 		Map<Long, Long> map = new HashMap<>();

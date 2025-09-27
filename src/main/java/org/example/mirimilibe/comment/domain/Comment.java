@@ -45,4 +45,15 @@ public class Comment {
 	private List<String> imagesUrl;
 
 	private LocalDateTime createdAt;
+
+	@Builder.Default
+	private Boolean isBestAnswer = false;
+
+	public void markAsBestAnswer() {
+		this.isBestAnswer = true;
+	}
+
+	public void unmarkAsBestAnswer() {
+		this.isBestAnswer = false;
+	}
 }
