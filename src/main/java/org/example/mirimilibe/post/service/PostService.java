@@ -135,7 +135,7 @@ public class PostService {
 			post.getTitle(),
 			post.getBody(),
 			writer.getNickname(),
-			militaryInfo.getSpecialty().getValue(),
+			militaryInfo.getSpecialty() != null ? militaryInfo.getSpecialty().getValue() : null,
 			militaryInfo.getMiliStatus(),
 			post.getCreatedAt(),
 			imageUrls,
