@@ -3,6 +3,7 @@ package org.example.mirimilibe.notification.service;
 import lombok.RequiredArgsConstructor;
 import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.error.NotificationErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.repository.MemberRepository;
@@ -65,10 +66,10 @@ public class NotificationService {
     @Transactional
     public void markAsRead(Long notificationId, Long memberId) {
         Notification notification = notificationRepository.findById(notificationId)
-                .orElseThrow(() -> new RuntimeException("알림을 찾을 수 없습니다."));
+                .orElseThrow(() -> new MiriMiliException(NotificationErrorCode.NOTIFICATION_NOT_FOUND));
 
         if (!notification.getMember().getId().equals(memberId)) {
-            throw new RuntimeException("권한이 없습니다.");
+            throw new MiriMiliException(NotificationErrorCode.NO_PERMISSION_TO_READ);
         }
 
         notification.markAsRead();
