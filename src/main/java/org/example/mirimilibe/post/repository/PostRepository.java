@@ -51,6 +51,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	List<Post> findAnswerablePosts(@Param("miliType") MiliType miliType,
 								   @Param("specialty") Specialty specialty);
 
+	@Query("""
+		SELECT p FROM Post p
+		LEFT JOIN FETCH p.writer
+		WHERE p.id = :postId
+	""")
+	java.util.Optional<Post> findByIdWithWriter(@Param("postId") Long postId);
+
 
 }
 

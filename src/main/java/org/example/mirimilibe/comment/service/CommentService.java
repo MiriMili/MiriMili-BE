@@ -117,7 +117,8 @@ public class CommentService {
 			.map(PostSpecialty::getSpecialty)
 			.toList();
 
-		List<Comment> comments = commentRepository.findAllByPost(post);
+		// Fetch Join으로 writer까지 한 번에 조회
+		List<Comment> comments = commentRepository.findAllByPostWithWriter(post);
 
 		// 좋아요/싫어요 집계용 map<commentId, like/dislike>
 		Map<Long, Long> likeMap = commentLikeRepository.countByCommentIdsAndType(
@@ -125,11 +126,17 @@ public class CommentService {
 		Map<Long, Long> dislikeMap = commentLikeRepository.countByCommentIdsAndType(
 			comments.stream().map(Comment::getId).toList(), ReactionType.DISLIKE);
 
+		// MilitaryInfo를 일괄 조회하여 Map으로 변환 (N+1 해결)
+		List<Long> writerIds = comments.stream()
+			.map(comment -> comment.getWriter().getId())
+			.distinct()
+			.toList();
+		Map<Long, MilitaryInfo> militaryInfoMap = militaryInfoRepository.findMapByMemberIds(writerIds);
+
 		List<CommentSummaryResponse> responseList = comments.stream()
 			.map(comment -> {
 				Member writer = comment.getWriter();
-				MilitaryInfo info = militaryInfoRepository.findByMemberId(writer.getId())
-					.orElse(null); // 일부 사용자는 군정보 없을 수 있음
+				MilitaryInfo info = militaryInfoMap.get(writer.getId()); // Map에서 조회
 
 				boolean matchesTarget = false;
 				if (info != null) {
@@ -147,7 +154,7 @@ public class CommentService {
 					likeMap.getOrDefault(comment.getId(), 0L),
 					dislikeMap.getOrDefault(comment.getId(), 0L),
 					matchesTarget,
-					info != null ? info.getSpecialty().getValue() : null,
+					info != null && info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
 					info != null ? info.getMiliType() : null,
 					info != null ? info.getMiliStatus() : null
 				);

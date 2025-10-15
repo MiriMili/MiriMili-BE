@@ -102,30 +102,32 @@ public class PostService {
 
 	@Transactional
 	public PostDetailResponse getPostDetail(Long postId) {
-		Post post = postRepository.findById(postId)
+		// Fetch Join으로 writer까지 한 번에 조회
+		Post post = postRepository.findByIdWithWriter(postId)
 			.orElseThrow(() -> new MiriMiliException(PostErrorCode.POST_NOT_FOUND));
 
 		// 조회수 증가
 		post.increaseViewCount();
 
 		Member writer = post.getWriter();
-		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(writer.getId())
+		// Fetch Join으로 specialty, unit까지 한 번에 조회
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberIdWithSpecialty(writer.getId())
 			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
-		// 카테고리 이름 추출
-		List<String> categoryNames = postCategoryRepository.findAllByPost(post).stream()
+		// Fetch Join으로 category까지 한 번에 조회
+		List<String> categoryNames = postCategoryRepository.findAllByPostWithCategory(post).stream()
 			.map(pc -> pc.getCategory().getValue())
 			.toList();
 
-		// 대상 특기명 추출
-		List<String> targetSpecialtyNames = postSpecialtyRepository.findAllByPost(post).stream()
+		// Fetch Join으로 specialty까지 한 번에 조회
+		List<String> targetSpecialtyNames = postSpecialtyRepository.findAllByPostWithSpecialty(post).stream()
 			.map(ps -> ps.getSpecialty().getValue())
 			.toList();
 
 		// 댓글 수
 		Long commentCount = commentRepository.countByPostId(postId);
 
-		List<String> imageKeys = post.getImageKeys(); // 엔티티 필드명에 맞게 수정
+		List<String> imageKeys = post.getImageKeys();
 		List<String> imageUrls = imageKeys == null || imageKeys.isEmpty()
 			? List.of()
 			: imageKeys.stream().map(s3UploadService::presignGet).toList();
