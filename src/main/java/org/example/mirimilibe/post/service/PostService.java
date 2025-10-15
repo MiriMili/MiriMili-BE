@@ -214,7 +214,7 @@ public class PostService {
 			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
 		// DB에서 답변 대기 지수로 정렬+페이징 (메모리 낭비 제거)
-		org.springframework.data.domain.PageRequest pageable = org.springframework.data.domain.PageRequest.of(page, size);
+		PageRequest pageable = PageRequest.of(page, size);
 		Page<Post> postPage = postRepository.findAnswerablePostsWithScore(
 			memberInfo.getMiliType().name(),
 			memberInfo.getSpecialty() != null ? memberInfo.getSpecialty().getId() : null,
