@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -47,7 +48,8 @@ public class SecurityConfig {
 					"/sms/verify", "/sms/send", "/sms/send-pwd", "/member/password").permitAll()
 				.requestMatchers("/actuator/health",
 					"/actuator/prometheus","/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
-				.anyRequest().authenticated() // 나머지 요청은 인증 필요
+				.requestMatchers(HttpMethod.GET, "/posts/**").permitAll() // 게시물 조회 허용
+			.anyRequest().authenticated() // 나머지 요청은 인증 필요
 			);
 
 

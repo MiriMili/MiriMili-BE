@@ -81,7 +81,10 @@ public class PostController {
 		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
 		CommonPageResponse<PostListItemResponse> response = postService.searchPosts(keyword, pageable);
-		recentSearchService.add(jwtMemberDetail.getMemberId(), keyword);
+		// 로그인한 사용자일 경우에만 최근 검색어 저장
+		if (jwtMemberDetail != null) {
+			recentSearchService.add(jwtMemberDetail.getMemberId(), keyword);
+		}
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 
