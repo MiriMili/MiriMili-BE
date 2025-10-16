@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class CookieUtil {
-	private static final String COOKIE_DOMAIN = "localhost"; // 도메인 설정
 
 	public void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
 		ResponseCookie cookie = ResponseCookie.from(name, value)
@@ -18,7 +17,6 @@ public class CookieUtil {
 			.secure(true)
 			.maxAge(maxAge)
 			.sameSite("None")
-			.domain(COOKIE_DOMAIN)
 			.build();
 
 		response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
