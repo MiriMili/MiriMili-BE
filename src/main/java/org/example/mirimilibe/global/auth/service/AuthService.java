@@ -101,6 +101,12 @@ public class AuthService {
 		// 재발급
 		Authentication authentication = jwtTokenUtil.createAuthentication(member);
 		String newAccessToken = jwtTokenUtil.generateAccessToken(authentication);
+		String newRefreshToken = jwtTokenUtil.generateRefreshToken(authentication);
+		long refreshTokenExpiry = jwtTokenUtil.extractExpiration(newRefreshToken)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.REFRESH_EXPIRED));
+
+		member.updateRefreshToken(newRefreshToken);
+		cookieUtil.setCookie(response, "refreshToken", newRefreshToken, (int) (refreshTokenExpiry/1000));
 
 		log.info("리프레시 토큰 성공: 전화번호={}, 사용자 ID={}", member.getNickname(), member.getId());
 
