@@ -41,6 +41,13 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
 
 	List<Comment> findByIsBestAnswerTrueOrderByCreatedAtDesc();
 
+	@Query("""
+		SELECT c FROM Comment c
+		JOIN FETCH c.writer
+		WHERE c.post = :post
+	""")
+	List<Comment> findAllByPostWithWriter(@Param("post") Post post);
+
 	default Map<Long, Long> countByPostIds(List<Long> postIds) {
 		List<Object[]> result = countRawByPostIds(postIds);
 		Map<Long, Long> map = new HashMap<>();

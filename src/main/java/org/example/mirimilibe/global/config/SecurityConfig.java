@@ -18,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -43,11 +44,17 @@ public class SecurityConfig {
 			.httpBasic(AbstractHttpConfigurer::disable) // HTTP Basic 인증 비활성화
 			.cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
 			.authorizeHttpRequests(auth -> auth
+				// 인증 없이 접근 가능한 경로
 				.requestMatchers("/member/signup", "/auth/login", "/auth/checkNickname", "/auth/reissue",
 					"/sms/verify", "/sms/send", "/sms/send-pwd", "/member/password").permitAll()
 				.requestMatchers("/actuator/health",
 					"/actuator/prometheus","/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
-				.anyRequest().authenticated() // 나머지 요청은 인증 필요
+
+				// 게시물 리스트 및 검색 로그인 없이 허용
+				.requestMatchers(HttpMethod.GET, "/posts/list", "/posts/search").permitAll()
+
+				// 나머지 요청은 인증 필요
+				.anyRequest().authenticated()
 			);
 
 
