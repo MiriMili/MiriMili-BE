@@ -6,10 +6,13 @@ import org.example.mirimilibe.global.auth.dto.LoginReq;
 import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
 import org.example.mirimilibe.global.auth.dto.RefreshDTO;
 import org.example.mirimilibe.global.auth.service.AuthService;
+import org.example.mirimilibe.global.error.MemberErrorCode;
+import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.global.auth.dto.SignUpReq;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.core.util.Json;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,8 +45,8 @@ public class AuthController {
 			+ "추가 정보 여부가 false일 경우, 추가 정보 입력 페이지로 리다이렉트되어야 합니다.<br>"
 		    + "추가 정보 여부는 사용자가 현역이 아닐 경우 true로 반환됩니다."
 	)
-	public ResponseEntity<ApiResponse<LoginSuccessRes>> login(@RequestBody LoginReq loginReq) {
-		LoginSuccessRes loginSuccessRes = authService.login(loginReq);
+	public ResponseEntity<ApiResponse<LoginSuccessRes>> login(@RequestBody LoginReq loginReq, HttpServletResponse response) {
+		LoginSuccessRes loginSuccessRes = authService.login(loginReq, response);
 		return ResponseEntity.ok(ApiResponse.success(loginSuccessRes));
 	}
 
@@ -51,8 +55,11 @@ public class AuthController {
 		description = "리프레시 토큰이 유효한 경우 새로운 액세스 토큰을 발급합니다. "
 			+ "액세스 토큰이 만료되어 401 Unauthorized 에러가 발생한 경우에만 사용해야 합니다."
 			+ "헤더에 만료된 액세스 토큰을 Bearer 타입으로 포함시켜야 합니다.")
-	public ResponseEntity<ApiResponse<RefreshDTO.Res>> reissue(@RequestBody @Valid RefreshDTO.Req req) {
-		RefreshDTO.Res res = authService.refreshToken(req);
+	public ResponseEntity<ApiResponse<RefreshDTO.Res>> reissue(@CookieValue(value = "refreshToken", required = false) String refreshToken,
+		HttpServletResponse response) {
+		if(refreshToken==null)
+			throw new MiriMiliException(MemberErrorCode.REFRESH_NOT_FOUND);
+		RefreshDTO.Res res = authService.refreshToken(refreshToken, response);
 		return ResponseEntity.ok(ApiResponse.success(res));
 	}
 
@@ -73,8 +80,9 @@ public class AuthController {
 			+ "로그아웃 시 클라이언트 측에서도 액세스 토큰과 리프레시 토큰을 삭제해야 합니다."
 	)
 	public ResponseEntity<ApiResponse<String>> logout(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
-		@RequestHeader("Authorization") String authorizationHeader) {
-		authService.logout(jwtMemberDetail.getMemberId(), authorizationHeader);
+		@RequestHeader("Authorization") String authorizationHeader,
+		HttpServletResponse response) {
+		authService.logout(jwtMemberDetail.getMemberId(), authorizationHeader, response);
 		return ResponseEntity.ok(ApiResponse.success("로그아웃 되었습니다."));
 	}
 }

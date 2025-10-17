@@ -6,6 +6,7 @@ import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.global.auth.dto.LoginReq;
 import org.example.mirimilibe.global.auth.dto.LoginSuccessRes;
 import org.example.mirimilibe.global.auth.dto.RefreshDTO;
+import org.example.mirimilibe.global.auth.jwt.util.CookieUtil;
 import org.example.mirimilibe.global.auth.jwt.util.JwtTokenUtil;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
@@ -20,7 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -33,10 +34,10 @@ public class AuthService {
 	private final JwtTokenUtil jwtTokenUtil;
 	private final MilitaryInfoRepository militaryInfoRepository;
 	private final BlackListService blackListService;
-
+	private final CookieUtil cookieUtil;
 
 	@Transactional
-	public LoginSuccessRes login(LoginReq loginReq) {
+	public LoginSuccessRes login(LoginReq loginReq, HttpServletResponse response) {
 		// 0. 전화번호로 회원 조회
 		Member member = memberRepository.findByNumber(loginReq.phoneNumber())
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
@@ -63,6 +64,8 @@ public class AuthService {
 		Authentication newAuth = jwtTokenUtil.createAuthentication(member);
 		String accessToken = jwtTokenUtil.generateAccessToken(newAuth);
 		String refreshToken = jwtTokenUtil.generateRefreshToken(newAuth);
+		long refreshTokenExpiry = jwtTokenUtil.extractExpiration(refreshToken)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.REFRESH_EXPIRED));
 
 		// 4. 로그인 성공 로그
 		log.info("로그인 성공: 전화번호={}, 사용자 ID={}", loginReq.phoneNumber(), member.getId());
@@ -71,15 +74,15 @@ public class AuthService {
 		//4-1. 현역 여부 및 군 정보 초기화 여부 확인
 		boolean isMilitaryInfoInit = checkMilitaryInfoInit(userDetails.getMemberId());
 
-		// 5. 결과 반환
-		return LoginSuccessRes.of(accessToken, refreshToken, member.getNickname(), isMilitaryInfoInit);
+		// 5. 결과 반환, 리프레시 토큰 쿠키 할당
+		cookieUtil.setCookie(response, "refreshToken", refreshToken, (int) (refreshTokenExpiry/1000));
+
+		return LoginSuccessRes.of(accessToken, member.getNickname(), isMilitaryInfoInit);
 
 	}
 
 	@Transactional
-	public RefreshDTO.Res refreshToken(RefreshDTO.Req req) {
-		// 0. 리프레시 토큰 유효성 검사
-		String refreshToken = req.refreshToken();
+	public RefreshDTO.Res refreshToken(String refreshToken, HttpServletResponse response) {
 		if( !jwtTokenUtil.validateToken(refreshToken)) {
 			log.warn("유효하지 않은 리프레시 토큰: {}", refreshToken);
 			throw new MiriMiliException(MemberErrorCode.REFRESH_EXPIRED);
@@ -88,35 +91,30 @@ public class AuthService {
 		Long memberId = jwtTokenUtil.extractId(refreshToken)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-		// 1. 전화번호로 회원 조회
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-		// 2. 리프레시 토큰이 일치하는지 확인
-		if (!member.getRefreshToken().equals(req.refreshToken())) {
+		if (!member.getRefreshToken().equals(refreshToken)) {
 			throw new MiriMiliException(MemberErrorCode.INVALID_MEMBER_PARAMETER);
 		}
 
-		// 3. 새로운 액세스 토큰 생성
+		// 재발급
 		Authentication authentication = jwtTokenUtil.createAuthentication(member);
 		String newAccessToken = jwtTokenUtil.generateAccessToken(authentication);
 
 		log.info("리프레시 토큰 성공: 전화번호={}, 사용자 ID={}", member.getNickname(), member.getId());
 
-		// 4. 새로운 액세스 토큰 반환
 		return RefreshDTO.Res.of(newAccessToken);
 	}
 
 	@Transactional
-	public void logout(Long memberId, String accessToken) {
-		// 1. 전화번호로 회원 조회
+	public void logout(Long memberId, String accessToken, HttpServletResponse response) {
 		Member member = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-		// 2. 리프레시 토큰 초기화
 		member.updateRefreshToken(null);
+		cookieUtil.deleteCookie(response, "refreshToken");
 
-		// 3. 액세스 토큰 블랙리스트에 등록
 		accessToken = accessToken.replace("Bearer ", "").trim();
 		blackListService.addBlacklist(accessToken);
 

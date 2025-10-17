@@ -13,6 +13,7 @@ public enum MemberErrorCode implements ErrorCode{
 	PASSWORD_MISMATCH(HttpStatus.BAD_REQUEST, "MEMBER401", "비밀번호가 일치하지 않습니다."),
 
 	REFRESH_EXPIRED(HttpStatus.BAD_REQUEST, "ACCESS401", "리프레시 토큰이 만료되었습니다."),
+	REFRESH_NOT_FOUND(HttpStatus.FORBIDDEN, "ACCESS400", "리프레시 토큰이 없습니다."),
 	ACCESS_TOKEN_NOT_FOUND(HttpStatus.FORBIDDEN,"ACCESS400","액세스 토큰이 없습니다."),
 	ACCESS_EXPIRED(HttpStatus.BAD_REQUEST,"ACCESS401","액세스 토큰이 만료되었습니다"),
 	DUPLICATE_AUTHORIZE_CODE(HttpStatus.BAD_REQUEST,"ACCESS402","인가 코드 중복 사용"),
