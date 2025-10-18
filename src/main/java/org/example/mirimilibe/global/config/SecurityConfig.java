@@ -72,7 +72,6 @@ public class SecurityConfig {
 		configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
 		configuration.addAllowedHeader("*"); // 모든 헤더 허용
 		configuration.setAllowCredentials(true); // 자격 증명 허용
-		configuration.addExposedHeader("Authorization"); // 클라이언트가 Authorization 헤더를 읽을 수 있도록 허용
 
 		configuration.setAllowedOrigins(List.of(
 			"https://pgs5kh-3000.csb.app",

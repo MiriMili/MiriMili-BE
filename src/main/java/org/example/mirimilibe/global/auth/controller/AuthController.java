@@ -41,7 +41,8 @@ public class AuthController {
 	@Operation(
 		summary = "로그인",
 		description = "회원의 전화번호와 비밀번호를 사용하여 로그인합니다. <br>"
-			+ "로그인 성공 시 액세스 토큰과 리프레시 토큰, 닉네임, 추가정보 여부를 반환합니다.<br>"
+			+ "로그인 성공 시 response body로 액세스 토큰, 닉네임, 추가정보 여부를 반환합니다.<br>"
+			+ "리프레시 토큰은 쿠키에 HttpOnly, Secure 속성으로 저장됩니다.<br>"
 			+ "추가 정보 여부가 false일 경우, 추가 정보 입력 페이지로 리다이렉트되어야 합니다.<br>"
 		    + "추가 정보 여부는 사용자가 현역이 아닐 경우 true로 반환됩니다."
 	)
@@ -77,7 +78,7 @@ public class AuthController {
 	@Operation(
 		summary = "로그아웃",
 		description = "사용자의 리프레시 토큰을 무효화하여 로그아웃 처리하는 API입니다. <br>"
-			+ "로그아웃 시 클라이언트 측에서도 액세스 토큰과 리프레시 토큰을 삭제해야 합니다."
+			+ "로그아웃 시 클라이언트 측에서도 액세스 토큰을 삭제해야 합니다. 리프레시 토큰은 자동으로 쿠키에서 삭제됩니다."
 	)
 	public ResponseEntity<ApiResponse<String>> logout(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
 		@RequestHeader("Authorization") String authorizationHeader,
