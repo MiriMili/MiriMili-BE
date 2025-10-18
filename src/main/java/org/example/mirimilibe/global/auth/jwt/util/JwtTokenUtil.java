@@ -24,6 +24,6 @@ public interface JwtTokenUtil {
 
 	Optional<Long> extractId(String token);
 
-	Optional<Date> extractExpiration(String token);
+	Optional<Long> extractExpiration(String token);
 
 }

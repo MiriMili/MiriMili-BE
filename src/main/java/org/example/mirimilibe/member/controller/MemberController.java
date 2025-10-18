@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -65,9 +66,10 @@ public class MemberController {
 			+ "해당 사용자는 회원 탈퇴 후 로그아웃 처리됩니다. <br>"
 	)
 	public ResponseEntity<ApiResponse<String>> deleteMember(@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
-		@RequestHeader("Authorization") String authorizationHeader) {
+		@RequestHeader("Authorization") String authorizationHeader,
+		HttpServletResponse response) {
 		memberService.deleteMember(jwtMemberDetail.getMemberId());
-		authService.logout(jwtMemberDetail.getMemberId(), authorizationHeader);
+		authService.logout(jwtMemberDetail.getMemberId(), authorizationHeader, response);
 		return ResponseEntity.ok(ApiResponse.success("회원 탈퇴 성공"));
 	}
 

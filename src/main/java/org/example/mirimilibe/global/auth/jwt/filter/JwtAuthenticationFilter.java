@@ -23,7 +23,6 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtTokenUtil jwtTokenUtil;
 	private final BlackListService blackListService;
-	private static final String GRANT_TYPE = "Bearer ";
 	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
 	protected List<String> filterPassList=List.of(
@@ -77,7 +76,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			authentication = jwtTokenUtil.getAuthentication(accessToken);
 
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-			response.setHeader("Authorization", GRANT_TYPE + accessToken);
 
 			filterChain.doFilter(request, response);
 
