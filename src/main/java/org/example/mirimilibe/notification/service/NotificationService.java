@@ -49,7 +49,7 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public CommonPageResponse<NotificationResponse> getNotifications(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Notification> notifications = notificationRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
+        Page<Notification> notifications = notificationRepository.findByMemberIdAndIsReadFalseOrderByCreatedAtDesc(memberId, pageable);
 
         Page<NotificationResponse> responsePage = notifications.map(this::convertToResponse);
         return CommonPageResponse.of(responsePage);
@@ -77,7 +77,7 @@ public class NotificationService {
 
     @Transactional
     public void markAllAsRead(Long memberId) {
-        Page<Notification> unreadNotifications = notificationRepository.findUnreadByMemberId(memberId, Pageable.unpaged());
+        Page<Notification> unreadNotifications = notificationRepository.findByMemberIdAndIsReadFalseOrderByCreatedAtDesc(memberId, Pageable.unpaged());
 
         for (Notification notification : unreadNotifications) {
             notification.markAsRead();
@@ -101,7 +101,7 @@ public class NotificationService {
                 NotificationType.QUESTION_NEW_ANSWER,
                 answererNickname + "님이 내 질문에 답변했어요!",
                 "클릭하여 내가 작성한 " + questionTitle + "에 대한 새로운 답변 내용을 확인해보세요.",
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
@@ -112,7 +112,7 @@ public class NotificationService {
                 NotificationType.QUESTION_ANOTHER_ANSWER,
                 "전에 답변했던 질문에 다른 사용자도 답변했어요!",
                 "클릭하여 내가 답변한 " + questionTitle + "에 대한 새로운 답변 내용을 확인해보세요.",
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
@@ -123,7 +123,7 @@ public class NotificationService {
                 NotificationType.QUESTION_FIRST_LIKE,
                 "누군가가 내 질문을 추천했어요!",
                 null,
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
@@ -134,7 +134,7 @@ public class NotificationService {
                 NotificationType.QUESTION_MILESTONE_LIKE,
                 "내 질문을 " + likeCount + "명이 추천했어요!",
                 null,
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
@@ -145,7 +145,7 @@ public class NotificationService {
                 NotificationType.ANSWER_FIRST_LIKE,
                 "누군가가 내 답변을 추천했어요!",
                 null,
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
@@ -156,7 +156,7 @@ public class NotificationService {
                 NotificationType.ANSWER_MILESTONE_LIKE,
                 "내 답변을 " + likeCount + "명이 추천했어요!",
                 null,
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
@@ -167,7 +167,7 @@ public class NotificationService {
                 NotificationType.QUESTION_HOT_SELECTED,
                 "내 질문이 HOT 질문으로 선정되었어요!",
                 "클릭하여 내가 작성한 " + questionTitle + "을 확인해보세요.",
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
@@ -178,7 +178,7 @@ public class NotificationService {
                 NotificationType.ANSWER_BEST_SELECTED,
                 "내 답변이 베스트 답변으로 선정되었어요!",
                 "클릭하여 내가 답변한 " + questionTitle + "을 확인해보세요.",
-                "/post/" + postId,
+                "/questions/" + postId,
                 postId
         );
     }
