@@ -49,7 +49,7 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public CommonPageResponse<NotificationResponse> getNotifications(Long memberId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        Page<Notification> notifications = notificationRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
+        Page<Notification> notifications = notificationRepository.findByMemberIdAndIsReadFalseOrderByCreatedAtDesc(memberId, pageable);
 
         Page<NotificationResponse> responsePage = notifications.map(this::convertToResponse);
         return CommonPageResponse.of(responsePage);
@@ -77,7 +77,7 @@ public class NotificationService {
 
     @Transactional
     public void markAllAsRead(Long memberId) {
-        Page<Notification> unreadNotifications = notificationRepository.findUnreadByMemberId(memberId, Pageable.unpaged());
+        Page<Notification> unreadNotifications = notificationRepository.findByMemberIdAndIsReadFalseOrderByCreatedAtDesc(memberId, Pageable.unpaged());
 
         for (Notification notification : unreadNotifications) {
             notification.markAsRead();
@@ -200,7 +200,7 @@ public class NotificationService {
                 NotificationType.DAILY_WAITING_ANSWER,
                 memberNickname + "의 답변을 기다리고 있어요!",
                 "클릭하여 답변을 확인하고, " + memberNickname + "님의 지식과 경험을 공유해주세요.",
-                "/questions/waiting",
+                "/post/waiting",
                 null
         );
     }
