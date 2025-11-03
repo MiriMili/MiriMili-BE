@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 public interface ScrapedPostRepository extends JpaRepository<ScrapedPost, Long> {
 	Optional<ScrapedPost> findByMemberAndPost(Member member, Post post);
 	List<ScrapedPost> findAllByMember(Member member);
+	Page<ScrapedPost> findAllByMember(Member member, Pageable pageable);
 
 	@Query("SELECT COUNT(sp) FROM ScrapedPost sp WHERE sp.post.id = :postId")
 	Long countByPostId(@Param("postId") Long postId);

@@ -35,6 +35,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	);
 
 	List<Post> findByWriterId(Long memberId);
+	Page<Post> findByWriterId(Long memberId, Pageable pageable);
 
 	@Query("SELECT p FROM Post p WHERE p.isHotQuestion = true ORDER BY p.createdAt DESC")
 	Page<Post> findHotQuestions(Pageable pageable);

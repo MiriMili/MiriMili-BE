@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.example.mirimilibe.comment.domain.ReactionType;
 import org.example.mirimilibe.comment.repository.CommentRepository;
+import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.error.PostErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
@@ -16,6 +17,8 @@ import org.example.mirimilibe.post.dto.PostListItemResponse;
 import org.example.mirimilibe.post.repository.PostLikeRepository;
 import org.example.mirimilibe.post.repository.PostRepository;
 import org.example.mirimilibe.post.repository.ScrapedPostRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,6 +72,30 @@ public class PostScrapService {
 					p.getCreatedAt()
 				);
 			}).toList();
+	}
+
+	@Transactional(readOnly = true)
+	public CommonPageResponse<PostListItemResponse> getMyScrapPosts(Long memberId, int page, int size) {
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		PageRequest pageable = PageRequest.of(page, size);
+		Page<ScrapedPost> scrapsPage = scrapedPostRepository.findAllByMember(member, pageable);
+
+		Page<PostListItemResponse> responsePage = scrapsPage.map(s -> {
+			Post p = s.getPost();
+			return new PostListItemResponse(
+				p.getId(),
+				p.getTitle(),
+				p.getBody(),
+				commentRepository.countByPostId(p.getId()),
+				postLikeRepository.countByPostIdsAndType(List.of(p.getId()), ReactionType.LIKE).getOrDefault(p.getId(), 0L),
+				p.getViewCount(),
+				p.getCreatedAt()
+			);
+		});
+
+		return CommonPageResponse.of(responsePage);
 	}
 
 }
