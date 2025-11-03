@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.example.mirimilibe.comment.dto.MyAnswerResponse;
 import org.example.mirimilibe.global.ApiResponse;
+import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.member.dto.MyPageRes;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,21 +30,25 @@ public class MyPageController {
 	private final MyPageService myPageService;
 	private final MilitaryInfoService militaryInfoService;
 
-	@Operation(summary = "내가 작성한 게시글 목록 조회")
+	@Operation(summary = "내가 작성한 게시글 목록 조회 (페이징)")
 	@GetMapping("/posts")
-	public ResponseEntity<ApiResponse<List<PostListItemResponse>>> getMyPosts(
-		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
+	public ResponseEntity<ApiResponse<CommonPageResponse<PostListItemResponse>>> getMyPosts(
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
 	) {
-		List<PostListItemResponse> posts = myPageService.getMyPosts(jwtMemberDetail.getMemberId());
+		CommonPageResponse<PostListItemResponse> posts = myPageService.getMyPosts(jwtMemberDetail.getMemberId(), page, size);
 		return ResponseEntity.ok(ApiResponse.success(posts));
 	}
 
-	@Operation(summary = "내가 답변한 댓글 목록 조회")
+	@Operation(summary = "내가 답변한 댓글 목록 조회 (페이징)")
 	@GetMapping("/answers")
-	public ResponseEntity<ApiResponse<List<MyAnswerResponse>>> getMyAnswers(
-		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
+	public ResponseEntity<ApiResponse<CommonPageResponse<MyAnswerResponse>>> getMyAnswers(
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail,
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size
 	) {
-		List<MyAnswerResponse> answers = myPageService.getMyAnswers(jwtMemberDetail.getMemberId());
+		CommonPageResponse<MyAnswerResponse> answers = myPageService.getMyAnswers(jwtMemberDetail.getMemberId(), page, size);
 		return ResponseEntity.ok(ApiResponse.success(answers));
 	}
 
