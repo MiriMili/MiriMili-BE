@@ -75,6 +75,8 @@ public class SecurityConfig {
 
 		configuration.setAllowedOrigins(List.of(
 			"https://pgs5kh-3000.csb.app",
+			"https://mirimili.co.kr",
+			"https://www.mirimili.co.kr",
 			"http://localhost:3000",
 			"http://localhost:8080"
 		));
