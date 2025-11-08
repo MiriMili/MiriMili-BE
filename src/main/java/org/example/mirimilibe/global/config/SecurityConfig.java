@@ -51,7 +51,7 @@ public class SecurityConfig {
 					"/actuator/prometheus","/swagger", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll() // Swagger 허용
 
 				// 게시물 리스트 및 검색 로그인 없이 허용
-				.requestMatchers(HttpMethod.GET, "/posts/list", "/posts/search").permitAll()
+				.requestMatchers(HttpMethod.GET, "/posts/list", "/posts/search", "/posts/*").permitAll()
 
 				// 나머지 요청은 인증 필요
 				.anyRequest().authenticated()
