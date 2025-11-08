@@ -38,7 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/sms/send-pwd",
 		"/member/password",
 		"/posts/list",
-		"/posts/search"
+		"/posts/search",
+		"/posts/*"
 	);
 
 	@Override
