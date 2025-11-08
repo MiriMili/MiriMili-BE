@@ -1,6 +1,7 @@
 package org.example.mirimilibe.comment.service;
 
 import java.nio.file.AccessDeniedException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -75,6 +76,7 @@ public class CommentService {
 			.writer(writer)
 			.content(req.body())
 			.imagesUrl(req.imagesUrl())
+			.createdAt(LocalDateTime.now())
 			.build();
 
 		commentRepository.save(comment);
