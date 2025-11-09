@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.example.mirimilibe.comment.domain.ReactionType;
 import org.example.mirimilibe.comment.repository.CommentRepository;
+import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.auth.service.S3UploadService;
 import org.example.mirimilibe.global.error.MemberErrorCode;
@@ -24,6 +25,7 @@ import org.example.mirimilibe.post.domain.PostSpecialty;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
 import org.example.mirimilibe.post.dto.PostDetailResponse;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
+import org.example.mirimilibe.post.dto.PostMyInfoRes;
 import org.example.mirimilibe.post.repository.CategoryRepository;
 import org.example.mirimilibe.post.repository.PostCategoryRepository;
 import org.example.mirimilibe.post.repository.PostLikeRepository;
@@ -239,5 +241,35 @@ public class PostService {
 			.toList();
 
 		return CommonPageResponse.of(dtoList, page, size, (int) postPage.getTotalElements());
+	}
+
+	public PostMyInfoRes getPostMyInfo(Long memberId, Long postId) {
+		Post post = postRepository.findById(postId)
+			.orElseThrow(() -> new MiriMiliException(PostErrorCode.POST_NOT_FOUND));
+
+		Member member = memberRepository.findById(memberId)
+			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
+
+		MilitaryInfo info = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
+
+		boolean matchedMili = post.getTargetMiliType() == null || post.getTargetMiliType() == info.getMiliType();
+
+		List<Specialty> allowedSpecialties = postSpecialtyRepository.findAllByPostId(postId)
+			.stream().map(PostSpecialty::getSpecialty).toList();
+
+		boolean matchedSpecialty = allowedSpecialties.isEmpty() ||
+			allowedSpecialties.contains(info.getSpecialty());
+
+		boolean isAnswerable = matchedMili || matchedSpecialty;
+
+		return new PostMyInfoRes(
+			member.getNickname(),
+			isAnswerable,
+			info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
+			info.getMiliType(),
+			info.getMiliStatus()
+		);
+
 	}
 }
