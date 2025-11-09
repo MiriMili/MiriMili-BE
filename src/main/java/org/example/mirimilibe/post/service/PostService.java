@@ -11,7 +11,6 @@ import org.example.mirimilibe.comment.repository.CommentRepository;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.auth.service.S3UploadService;
-import org.example.mirimilibe.global.error.CommentErrorCode;
 import org.example.mirimilibe.global.error.MemberErrorCode;
 import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.error.PostErrorCode;
