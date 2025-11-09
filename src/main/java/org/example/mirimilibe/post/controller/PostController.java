@@ -8,6 +8,7 @@ import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
 import org.example.mirimilibe.post.dto.PostDetailResponse;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
+import org.example.mirimilibe.post.dto.PostMyInfoRes;
 import org.example.mirimilibe.post.service.PostService;
 import org.example.mirimilibe.post.service.RecentSearchService;
 import org.springdoc.core.annotations.ParameterObject;
@@ -96,6 +97,18 @@ public class PostController {
 		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
 		CommonPageResponse<PostListItemResponse> response = postService.getAnswerablePosts(jwtMemberDetail.getMemberId(), page, size);
+		return ResponseEntity.ok(ApiResponse.success(response));
+	}
+
+
+	@GetMapping("/{postId}/my")
+	@Operation(summary = "답글 작성 가능 여부 및 내 정보 조회", description = "게시글 페이지에서 필요한 내 정보를 반환합니다. <br>"
+		+"- isAnswerable: 해당 게시글에 답변을 작성할 수 있는지 여부 ")
+	public ResponseEntity<ApiResponse<PostMyInfoRes>> getPostMyInfo(
+		@PathVariable Long postId,
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
+	) {
+		PostMyInfoRes response = postService.getPostMyInfo(jwtMemberDetail.getMemberId(), postId);
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 }
