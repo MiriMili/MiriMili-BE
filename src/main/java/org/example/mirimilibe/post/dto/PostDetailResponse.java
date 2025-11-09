@@ -15,6 +15,7 @@ public record PostDetailResponse(
 	String writerNickname,
 	String writerSpecialty,
 	MiliStatus writerStatus,
+	MiliType writerMiliType,
 
 	LocalDateTime createdAt,
 	List<String> images,

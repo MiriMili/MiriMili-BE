@@ -138,6 +138,7 @@ public class PostService {
 			writer.getNickname(),
 			militaryInfo.getSpecialty() != null ? militaryInfo.getSpecialty().getValue() : null,
 			militaryInfo.getMiliStatus(),
+			militaryInfo.getMiliType(),
 			post.getCreatedAt(),
 			imageUrls,
 			categoryNames,
