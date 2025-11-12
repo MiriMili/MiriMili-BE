@@ -38,14 +38,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 		"/sms/send-pwd",
 		"/member/password",
 		"/posts/list",
-		"/posts/search",
-		"/posts/*"
+		"/posts/search"
 	);
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		//1. 필터링 제외 경로 설정
 		String requestURI = request.getRequestURI();
+
+		if (requestURI.matches("/posts/\\d+")) {
+			return true; // JWT 필터 통과하지 않고 허용
+		}
+
 		return filterPassList.stream().anyMatch(pattern->pathMatcher.match(pattern, requestURI));
 	}
 
