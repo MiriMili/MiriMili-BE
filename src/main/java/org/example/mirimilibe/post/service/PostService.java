@@ -219,7 +219,7 @@ public class PostService {
 		// DB에서 답변 대기 지수로 정렬+페이징 (메모리 낭비 제거)
 		PageRequest pageable = PageRequest.of(page, size);
 		Page<Post> postPage = postRepository.findAnswerablePostsWithScore(
-			memberInfo.getMiliType().name(),
+			memberInfo.getMiliType() != null ? memberInfo.getMiliType().name() : null,
 			memberInfo.getSpecialty() != null ? memberInfo.getSpecialty().getId() : null,
 			pageable
 		);
@@ -262,7 +262,7 @@ public class PostService {
 		boolean matchedSpecialty = allowedSpecialties.isEmpty() ||
 			allowedSpecialties.contains(info.getSpecialty());
 
-		boolean isAnswerable = matchedMili || matchedSpecialty;
+		boolean isAnswerable = matchedMili && matchedSpecialty;
 
 		return new PostMyInfoRes(
 			member.getNickname(),

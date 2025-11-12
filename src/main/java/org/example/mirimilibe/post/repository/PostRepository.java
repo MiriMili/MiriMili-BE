@@ -138,7 +138,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		    GROUP BY post_id
 		) s ON s.post_id = p.id
 		WHERE (p.target_mili_type IS NULL OR p.target_mili_type = :miliType)
-		   OR (ps.specialty_id IS NULL OR ps.specialty_id = :specialtyId)
+		   AND (ps.specialty_id IS NULL OR ps.specialty_id = :specialtyId)
 		ORDER BY (
 		    COALESCE(p.view_count, 0) * 0.5 +
 		    COALESCE(pl.like_count, 0) * 3.0 +
@@ -152,7 +152,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		FROM post p
 		LEFT JOIN post_specialty ps ON ps.post_id = p.id
 		WHERE (p.target_mili_type IS NULL OR p.target_mili_type = :miliType)
-		   OR (ps.specialty_id IS NULL OR ps.specialty_id = :specialtyId)
+		   AND (ps.specialty_id IS NULL OR ps.specialty_id = :specialtyId)
 		""",
 		nativeQuery = true)
 	Page<Post> findAnswerablePostsWithScore(

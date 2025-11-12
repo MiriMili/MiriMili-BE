@@ -69,7 +69,7 @@ public class CommentService {
 		boolean matchedSpecialty = allowedSpecialties.isEmpty() ||
 			allowedSpecialties.contains(info.getSpecialty());
 
-		if (!matchedMili && !matchedSpecialty) {
+		if (!matchedMili || !matchedSpecialty) {
 			throw new MiriMiliException(CommentErrorCode.NO_PERMISSION_TO_COMMENT);
 		}
 
@@ -162,7 +162,7 @@ public class CommentService {
 				if (info != null) {
 					boolean matchedMili = post.getTargetMiliType() == null || post.getTargetMiliType() == info.getMiliType();
 					boolean matchedSpecialty = allowedSpecialties.isEmpty() || allowedSpecialties.contains(info.getSpecialty());
-					matchesTarget = matchedMili || matchedSpecialty;
+					matchesTarget = matchedMili && matchedSpecialty;
 				}
 
 				return new CommentSummaryResponse(
