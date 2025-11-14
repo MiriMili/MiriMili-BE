@@ -37,4 +37,6 @@ public interface PostLikeRepository extends JpaRepository<PostLike, Long> {
 		}
 		return map;
 	}
+
+	boolean existsByPostIdAndMemberIdAndType(Long postId, Long memberId, ReactionType type);
 }

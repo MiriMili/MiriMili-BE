@@ -24,6 +24,9 @@ public record PostDetailResponse(
 	MiliType targetMiliType,
 	List<String> targetSpecialties,
 
+	long likeCount,
+	long dislikeCount,
+
 	Long commentCount,
 	Long viewCount
 

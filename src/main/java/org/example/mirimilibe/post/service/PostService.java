@@ -40,7 +40,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PostService {
@@ -126,6 +128,11 @@ public class PostService {
 		// 댓글 수
 		Long commentCount = commentRepository.countByPostId(postId);
 
+		// 좋아요, 싫어요 개수
+		Long likeCount = postLikeRepository.countByPostIdAndType(postId, ReactionType.LIKE);
+		Long dislikeCount = postLikeRepository.countByPostIdAndType(postId, ReactionType.DISLIKE);
+
+
 		List<String> imageKeys = post.getImageKeys();
 		List<String> imageUrls = imageKeys == null || imageKeys.isEmpty()
 			? List.of()
@@ -144,6 +151,8 @@ public class PostService {
 			categoryNames,
 			post.getTargetMiliType(),
 			targetSpecialtyNames,
+			likeCount,
+			dislikeCount,
 			commentCount,
 			post.getViewCount()
 		);
