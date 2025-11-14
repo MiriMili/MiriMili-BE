@@ -273,12 +273,17 @@ public class PostService {
 
 		boolean isAnswerable = matchedMili && matchedSpecialty;
 
+		boolean isLiked=postLikeRepository.existsByPostIdAndMemberIdAndType(postId,memberId,ReactionType.LIKE);
+		boolean isDisliked=postLikeRepository.existsByPostIdAndMemberIdAndType(postId,memberId,ReactionType.DISLIKE);
+
 		return new PostMyInfoRes(
 			member.getNickname(),
 			isAnswerable,
 			info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
 			info.getMiliType(),
-			info.getMiliStatus()
+			info.getMiliStatus(),
+			isLiked,
+			isDisliked
 		);
 
 	}

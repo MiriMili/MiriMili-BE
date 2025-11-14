@@ -8,5 +8,7 @@ public record PostMyInfoRes (
 	Boolean isAnswerable,
 	String specialty,
 	MiliType miliType,
-	MiliStatus miliStatus
+	MiliStatus miliStatus,
+	boolean isLiked,
+	boolean isDisliked
 ){ }
