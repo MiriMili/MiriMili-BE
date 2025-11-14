@@ -23,64 +23,26 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	private final JwtTokenUtil jwtTokenUtil;
 	private final BlackListService blackListService;
-	private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-	protected List<String> filterPassList=List.of(
-		"/auth/login",
-		"/actuator/prometheus",
-		"/member/signup",
-		"/auth/checkNickname",
-		"/swagger-ui/**",
-		"/swagger-resources/**",
-		"/v3/api-docs/**",
-		"/sms/verify",
-		"/sms/send",
-		"/sms/send-pwd",
-		"/member/password",
-		"/posts/list",
-		"/posts/search"
-	);
-
-	@Override
-	protected boolean shouldNotFilter(HttpServletRequest request) {
-		//1. 필터링 제외 경로 설정
-		String requestURI = request.getRequestURI();
-
-		if (requestURI.matches("/posts/\\d+")) {
-			return true; // JWT 필터 통과하지 않고 허용
-		}
-
-		return filterPassList.stream().anyMatch(pattern->pathMatcher.match(pattern, requestURI));
-	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 
-		//2. Authorization 헤더에서 JWT 토큰 추출
 		String accessToken = jwtTokenUtil.extractAccessToken(request)
 			.orElse(null);
 
-		if (accessToken == null) {
-			log.warn("Authorization 헤더에 access-token이 없습니다.");
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			return;
-		}
-
-		if (blackListService.isBlacklisted(accessToken)) {
-			log.warn("블랙리스트에 등록된 access-token 요청입니다.");
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			return;
-		}
-
-		//4. 토큰에서 사용자 정보 추출
-		Authentication authentication;
-
-		//5. SecurityContext에 인증 정보 저장
 		try {
-			authentication = jwtTokenUtil.getAuthentication(accessToken);
+			if(accessToken!=null){
+				if (blackListService.isBlacklisted(accessToken)) {
+					log.warn("블랙리스트에 등록된 access-token 요청입니다.");
+					filterChain.doFilter(request, response);
+					return;
+				}
 
-			SecurityContextHolder.getContext().setAuthentication(authentication);
+				Authentication authentication = jwtTokenUtil.getAuthentication(accessToken);
+				SecurityContextHolder.getContext().setAuthentication(authentication);
+			}
 
 			filterChain.doFilter(request, response);
 
@@ -95,7 +57,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 
 		}catch (Exception e) {
-			//6. 토큰이 유효하지 않은 경우 예외 처리
 			log.error("유효하지 않은 access-token: {}", accessToken, e);
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 		}
