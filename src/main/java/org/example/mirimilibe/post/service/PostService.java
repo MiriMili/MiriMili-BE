@@ -101,7 +101,7 @@ public class PostService {
 	}
 
 	@Transactional
-	public PostDetailResponse getPostDetail(Long postId) {
+	public PostDetailResponse getPostDetail(Long postId, Long memberId) {
 		// Fetch Join으로 writer까지 한 번에 조회
 		Post post = postRepository.findByIdWithWriter(postId)
 			.orElseThrow(() -> new MiriMiliException(PostErrorCode.POST_NOT_FOUND));
@@ -131,6 +131,12 @@ public class PostService {
 		Long likeCount = postLikeRepository.countByPostIdAndType(postId, ReactionType.LIKE);
 		Long dislikeCount = postLikeRepository.countByPostIdAndType(postId, ReactionType.DISLIKE);
 
+		boolean isLiked=false;
+		boolean isDisliked=false;
+		if (memberId != null) {
+			isLiked = postLikeRepository.existsByPostIdAndMemberIdAndType(postId, memberId, ReactionType.LIKE);
+			isDisliked = postLikeRepository.existsByPostIdAndMemberIdAndType(postId, memberId, ReactionType.DISLIKE);
+		}
 
 		List<String> imageKeys = post.getImageKeys();
 		List<String> imageUrls = imageKeys == null || imageKeys.isEmpty()
@@ -153,7 +159,9 @@ public class PostService {
 			likeCount,
 			dislikeCount,
 			commentCount,
-			post.getViewCount()
+			post.getViewCount(),
+			isLiked,
+			isDisliked
 		);
 	}
 
@@ -272,17 +280,12 @@ public class PostService {
 
 		boolean isAnswerable = matchedMili && matchedSpecialty;
 
-		boolean isLiked=postLikeRepository.existsByPostIdAndMemberIdAndType(postId,memberId,ReactionType.LIKE);
-		boolean isDisliked=postLikeRepository.existsByPostIdAndMemberIdAndType(postId,memberId,ReactionType.DISLIKE);
-
 		return new PostMyInfoRes(
 			member.getNickname(),
 			isAnswerable,
 			info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
 			info.getMiliType(),
-			info.getMiliStatus(),
-			isLiked,
-			isDisliked
+			info.getMiliStatus()
 		);
 
 	}
