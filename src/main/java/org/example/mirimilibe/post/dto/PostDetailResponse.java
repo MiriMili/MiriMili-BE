@@ -28,6 +28,9 @@ public record PostDetailResponse(
 	long dislikeCount,
 
 	Long commentCount,
-	Long viewCount
+	Long viewCount,
+
+	boolean isLiked,
+	boolean isDisliked
 
 ) {}
