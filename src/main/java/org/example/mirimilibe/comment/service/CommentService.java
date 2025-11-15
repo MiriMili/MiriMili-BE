@@ -109,7 +109,7 @@ public class CommentService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<CommentSummaryResponse> getCommentsByPost(Long postId) {
+	public List<CommentSummaryResponse> getCommentsByPost(Long postId, Long memberId) {
 		Post post = postRepository.findById(postId)
 			.orElseThrow(() -> new MiriMiliException(PostErrorCode.POST_NOT_FOUND));
 
@@ -127,6 +127,13 @@ public class CommentService {
 
 		Map<Long,Long> dislikeMap = commentLikeRepository.countByCommentIdsAndType(
 			comments.stream().map(Comment::getId).toList(), ReactionType.DISLIKE);
+
+		// 좋아요/싫어요 여부 체크용 Long<commentId>
+		List<Long> isLikedCommentIds= commentLikeRepository.findCommentIdsByMemberIdAndType(
+			comments.stream().map(Comment::getId).toList(),	memberId, ReactionType.LIKE);
+
+		List<Long> isDislikedCommentIds= commentLikeRepository.findCommentIdsByMemberIdAndType(
+			comments.stream().map(Comment::getId).toList(),	memberId, ReactionType.DISLIKE);
 
 		// MilitaryInfo를 일괄 조회하여 Map으로 변환 (N+1 해결)
 		List<Long> writerIds = comments.stream()
@@ -158,7 +165,9 @@ public class CommentService {
 					matchesTarget,
 					info != null && info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
 					info != null ? info.getMiliType() : null,
-					info != null ? info.getMiliStatus() : null
+					info != null ? info.getMiliStatus() : null,
+					isLikedCommentIds.contains(comment.getId()),
+					isDislikedCommentIds.contains(comment.getId())
 				);
 			})
 			.sorted((a, b) -> {

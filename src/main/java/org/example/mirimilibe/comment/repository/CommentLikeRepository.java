@@ -33,4 +33,14 @@ public interface CommentLikeRepository extends JpaRepository<CommentLike, Long> 
 		}
 		return map;
 	}
+
+	@Query("""
+		SELECT cl.comment.id
+		FROM CommentLike cl
+		WHERE cl.comment.id IN :commentIds AND cl.member.id = :memberId AND cl.type = :type
+	""")
+	List<Long> findCommentIdsByMemberIdAndType(@Param("commentIds") List<Long> commentIds,
+		@Param("memberId") Long memberId,
+		@Param("type") ReactionType type);
+
 }
