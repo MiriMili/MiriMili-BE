@@ -41,8 +41,9 @@ public class CommentController {
 
 	@GetMapping
 	@Operation(summary = "댓글 리스트 조회", description = "게시글에 달린 댓글들을 반환합니다.")
-	public ResponseEntity<ApiResponse<List<CommentSummaryResponse>>> getComments(@PathVariable Long postId) {
-		List<CommentSummaryResponse> response = commentService.getCommentsByPost(postId);
+	public ResponseEntity<ApiResponse<List<CommentSummaryResponse>>> getComments(@PathVariable Long postId,
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
+		List<CommentSummaryResponse> response = commentService.getCommentsByPost(postId, jwtMemberDetail.getMemberId());
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 }

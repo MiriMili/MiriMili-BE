@@ -18,5 +18,8 @@ public record CommentSummaryResponse(
 
 	String writerSpecialty,
 	MiliType writerMiliType,
-	MiliStatus writerStatus
+	MiliStatus writerStatus,
+
+	boolean isLiked,
+	boolean isDisliked
 ) {}
