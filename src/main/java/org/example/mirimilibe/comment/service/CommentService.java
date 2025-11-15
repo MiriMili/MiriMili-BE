@@ -1,8 +1,5 @@
 package org.example.mirimilibe.comment.service;
 
-import static java.util.stream.Collectors.*;
-
-import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +7,6 @@ import java.util.Map;
 import org.example.mirimilibe.comment.domain.Comment;
 import org.example.mirimilibe.comment.domain.ReactionType;
 import org.example.mirimilibe.comment.dto.CommentCreateRequest;
-import org.example.mirimilibe.comment.dto.CommentLikeDTO;
 import org.example.mirimilibe.comment.repository.CommentLikeRepository;
 import org.example.mirimilibe.comment.repository.CommentRepository;
 import org.example.mirimilibe.comment.repository.CommentSummaryResponse;
@@ -127,24 +123,10 @@ public class CommentService {
 
 		// 좋아요/싫어요 집계용 map<commentId, like/dislike>
 		Map<Long,Long> likeMap = commentLikeRepository.countByCommentIdsAndType(
-			comments.stream().map(Comment::getId).toList(), ReactionType.LIKE)
-			.stream()
-			.collect(
-				toMap(
-					CommentLikeDTO::commentId,
-					CommentLikeDTO::likeCount
-				)
-			);
+			comments.stream().map(Comment::getId).toList(), ReactionType.LIKE);
 
 		Map<Long,Long> dislikeMap = commentLikeRepository.countByCommentIdsAndType(
-			comments.stream().map(Comment::getId).toList(), ReactionType.DISLIKE)
-			.stream()
-			.collect(
-				toMap(
-					CommentLikeDTO::commentId,
-					CommentLikeDTO::likeCount
-				)
-			);
+			comments.stream().map(Comment::getId).toList(), ReactionType.DISLIKE);
 
 		// MilitaryInfo를 일괄 조회하여 Map으로 변환 (N+1 해결)
 		List<Long> writerIds = comments.stream()
