@@ -43,7 +43,11 @@ public class PostLikeService {
 		if (existing.isPresent()) {
 			PostLike like = existing.get();
 			if (like.getType() == type) {
-				throw new MiriMiliException(PostErrorCode.ALREADY_REACTED);
+				// 같은 타입으로 다시 누르면 취소 (삭제)
+				postLikeRepository.delete(like);
+				// 마지막 활동 시간 업데이트
+				rankingService.updateLastActivity(postId);
+				return; // 알림 처리 없이 종료
 			}
 			like.setType(type); // 상태 변경
 		} else {
