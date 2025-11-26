@@ -161,6 +161,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 		Pageable pageable
 	);
 
+	Long countByWriterId(Long memberId);
 
 }
 
