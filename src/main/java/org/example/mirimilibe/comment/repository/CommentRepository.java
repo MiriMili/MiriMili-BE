@@ -57,4 +57,6 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
 		}
 		return map;
 	}
+
+	Long countByWriterId(Long memberId);
 }

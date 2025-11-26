@@ -22,6 +22,7 @@ import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
 import org.example.mirimilibe.post.domain.Post;
 import org.example.mirimilibe.post.domain.PostCategory;
 import org.example.mirimilibe.post.domain.PostSpecialty;
+import org.example.mirimilibe.post.dto.MyActivityResponse;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
 import org.example.mirimilibe.post.dto.PostDetailResponse;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
@@ -288,5 +289,12 @@ public class PostService {
 			info.getMiliStatus()
 		);
 
+	}
+
+	public MyActivityResponse getMyActivity(Long memberId) {
+		Long postCount = postRepository.countByWriterId(memberId);
+		Long commentCount = commentRepository.countByWriterId(memberId);
+
+		return new MyActivityResponse(postCount, commentCount);
 	}
 }

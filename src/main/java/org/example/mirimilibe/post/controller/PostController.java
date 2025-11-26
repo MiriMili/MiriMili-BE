@@ -5,6 +5,7 @@ import java.util.List;
 import org.example.mirimilibe.global.ApiResponse;
 import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
+import org.example.mirimilibe.post.dto.MyActivityResponse;
 import org.example.mirimilibe.post.dto.PostCreateRequest;
 import org.example.mirimilibe.post.dto.PostDetailResponse;
 import org.example.mirimilibe.post.dto.PostListItemResponse;
@@ -111,6 +112,15 @@ public class PostController {
 		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
 	) {
 		PostMyInfoRes response = postService.getPostMyInfo(jwtMemberDetail.getMemberId(), postId);
+		return ResponseEntity.ok(ApiResponse.success(response));
+	}
+
+	@GetMapping("/activity")
+	@Operation(summary = "사이드바에 표시할 정보 (내 활동)")
+	public ResponseEntity<ApiResponse<MyActivityResponse>> getMyActivePosts(
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
+	) {
+		MyActivityResponse response = postService.getMyActivity(jwtMemberDetail.getMemberId());
 		return ResponseEntity.ok(ApiResponse.success(response));
 	}
 }
