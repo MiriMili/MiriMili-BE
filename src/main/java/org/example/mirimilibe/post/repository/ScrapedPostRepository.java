@@ -19,6 +19,8 @@ public interface ScrapedPostRepository extends JpaRepository<ScrapedPost, Long> 
 
 	@Query("SELECT COUNT(sp) FROM ScrapedPost sp WHERE sp.post.id = :postId")
 	Long countByPostId(@Param("postId") Long postId);
+
+	boolean existsByPostIdAndMemberId(Long postId, Long memberId);
 }
 
 
