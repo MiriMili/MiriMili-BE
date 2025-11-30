@@ -32,6 +32,7 @@ import org.example.mirimilibe.post.repository.PostCategoryRepository;
 import org.example.mirimilibe.post.repository.PostLikeRepository;
 import org.example.mirimilibe.post.repository.PostRepository;
 import org.example.mirimilibe.post.repository.PostSpecialtyRepository;
+import org.example.mirimilibe.post.repository.ScrapedPostRepository;
 import org.example.mirimilibe.post.repository.SpecialtyRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -56,6 +57,7 @@ public class PostService {
 	private final CommentRepository commentRepository;
 	private final MilitaryInfoRepository militaryInfoRepository;
 	private final PostLikeRepository postLikeRepository;
+	private final ScrapedPostRepository scrapedPostRepository;
 	private final S3UploadService s3UploadService;
 
 	@Transactional
@@ -134,9 +136,12 @@ public class PostService {
 
 		boolean isLiked=false;
 		boolean isDisliked=false;
+		boolean isScraped=false;
+
 		if (memberId != null) {
 			isLiked = postLikeRepository.existsByPostIdAndMemberIdAndType(postId, memberId, ReactionType.LIKE);
 			isDisliked = postLikeRepository.existsByPostIdAndMemberIdAndType(postId, memberId, ReactionType.DISLIKE);
+			isScraped = scrapedPostRepository.existsByPostIdAndMemberId(postId, memberId);
 		}
 
 		List<String> imageKeys = post.getImageKeys();
@@ -162,7 +167,8 @@ public class PostService {
 			commentCount,
 			post.getViewCount(),
 			isLiked,
-			isDisliked
+			isDisliked,
+			isScraped
 		);
 	}
 

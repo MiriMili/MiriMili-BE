@@ -31,6 +31,7 @@ public record PostDetailResponse(
 	Long viewCount,
 
 	boolean isLiked,
-	boolean isDisliked
+	boolean isDisliked,
+	boolean isScraped
 
 ) {}
