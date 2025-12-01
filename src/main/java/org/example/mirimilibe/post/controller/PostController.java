@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -122,5 +123,15 @@ public class PostController {
 	) {
 		MyActivityResponse response = postService.getMyActivity(jwtMemberDetail.getMemberId());
 		return ResponseEntity.ok(ApiResponse.success(response));
+	}
+
+	@DeleteMapping("/{postId}")
+	@Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다. 작성자만 삭제할 수 있으며, 게시글 삭제 시 해당 게시글의 댓글도 함께 삭제됩니다.")
+	public ResponseEntity<ApiResponse<Void>> deletePost(
+		@PathVariable Long postId,
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
+	) {
+		postService.deletePost(jwtMemberDetail.getMemberId(), postId);
+		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 }
