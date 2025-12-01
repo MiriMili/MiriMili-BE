@@ -182,5 +182,19 @@ public class CommentService {
 		return responseList;
 	}
 
+	@Transactional
+	public void deleteComment(Long memberId, Long commentId) {
+		Comment comment = commentRepository.findById(commentId)
+			.orElseThrow(() -> new MiriMiliException(CommentErrorCode.COMMENT_NOT_FOUND));
+
+		// 작성자 권한 확인
+		if (!comment.getWriter().getId().equals(memberId)) {
+			throw new MiriMiliException(CommentErrorCode.NO_PERMISSION_TO_DELETE);
+		}
+
+		// 댓글 삭제
+		commentRepository.delete(comment);
+	}
+
 }
 

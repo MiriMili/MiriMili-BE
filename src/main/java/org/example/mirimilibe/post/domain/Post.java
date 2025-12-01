@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.example.mirimilibe.comment.domain.Comment;
 import org.example.mirimilibe.common.Enum.MiliType;
 import org.example.mirimilibe.member.domain.Member;
 
@@ -61,6 +62,22 @@ public class Post {
 	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
 	@Builder.Default
 	private List<PostCategory> postCategories = new ArrayList<>();
+
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<PostSpecialty> postSpecialties = new ArrayList<>();
+
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<Comment> comments = new ArrayList<>();
+
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<PostLike> postLikes = new ArrayList<>();
+
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+	@Builder.Default
+	private List<ScrapedPost> scrapedPosts = new ArrayList<>();
 
 	@Builder.Default
 	private Boolean isHotQuestion = false;

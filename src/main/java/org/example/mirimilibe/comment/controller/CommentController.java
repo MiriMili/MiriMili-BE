@@ -11,6 +11,7 @@ import org.example.mirimilibe.global.auth.dto.JwtMemberDetail;
 import org.example.mirimilibe.member.domain.Member;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,5 +46,16 @@ public class CommentController {
 		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail) {
 		List<CommentSummaryResponse> response = commentService.getCommentsByPost(postId, jwtMemberDetail.getMemberId());
 		return ResponseEntity.ok(ApiResponse.success(response));
+	}
+
+	@DeleteMapping("/{commentId}")
+	@Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다. 작성자만 삭제할 수 있습니다.")
+	public ResponseEntity<ApiResponse<Void>> deleteComment(
+		@PathVariable Long postId,
+		@PathVariable Long commentId,
+		@AuthenticationPrincipal JwtMemberDetail jwtMemberDetail
+	) {
+		commentService.deleteComment(jwtMemberDetail.getMemberId(), commentId);
+		return ResponseEntity.ok(ApiResponse.success(null));
 	}
 }

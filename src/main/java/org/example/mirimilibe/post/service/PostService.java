@@ -303,4 +303,18 @@ public class PostService {
 
 		return new MyActivityResponse(postCount, commentCount);
 	}
+
+	@Transactional
+	public void deletePost(Long memberId, Long postId) {
+		Post post = postRepository.findById(postId)
+			.orElseThrow(() -> new MiriMiliException(PostErrorCode.POST_NOT_FOUND));
+
+		// 작성자 권한 확인
+		if (!post.getWriter().getId().equals(memberId)) {
+			throw new MiriMiliException(PostErrorCode.NO_PERMISSION_TO_DELETE);
+		}
+
+		// 게시글 삭제 (cascade로 댓글도 함께 삭제됨)
+		postRepository.delete(post);
+	}
 }
