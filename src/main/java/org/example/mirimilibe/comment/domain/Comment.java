@@ -4,12 +4,15 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.example.mirimilibe.common.Enum.MiliRank;
 import org.example.mirimilibe.member.domain.Member;
 import org.example.mirimilibe.post.domain.Post;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -41,6 +44,9 @@ public class Comment {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "writer_id", nullable = false)
 	private Member writer;
+
+	@Enumerated(EnumType.STRING)
+	private MiliRank writerMiliRank;
 
 	private String content;
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.example.mirimilibe.comment.domain.Comment;
+import org.example.mirimilibe.common.Enum.MiliRank;
 import org.example.mirimilibe.common.Enum.MiliType;
 import org.example.mirimilibe.member.domain.Member;
 
@@ -40,6 +41,9 @@ public class Post {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "writer_id", nullable = false)
 	private Member writer;
+
+	@Enumerated(EnumType.STRING)
+	private MiliRank writerMiliRank;
 
 	private String title;
 

@@ -10,6 +10,7 @@ import org.example.mirimilibe.comment.dto.CommentCreateRequest;
 import org.example.mirimilibe.comment.repository.CommentLikeRepository;
 import org.example.mirimilibe.comment.repository.CommentRepository;
 import org.example.mirimilibe.comment.repository.CommentSummaryResponse;
+import org.example.mirimilibe.common.Enum.MiliRank;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.global.error.CommentErrorCode;
 import org.example.mirimilibe.global.error.MemberErrorCode;
@@ -17,6 +18,7 @@ import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.error.PostErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
+import org.example.mirimilibe.member.domain.MiliRankCalculator;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
@@ -43,6 +45,7 @@ public class CommentService {
 	private final CommentLikeRepository commentLikeRepository;
 	private final NotificationService notificationService;
 	private final RankingService rankingService;
+
 	@Transactional
 	public Long createComment(Long memberId, Long postId, CommentCreateRequest req)  {
 		Post post = postRepository.findById(postId)
@@ -69,10 +72,13 @@ public class CommentService {
 			throw new MiriMiliException(CommentErrorCode.NO_PERMISSION_TO_COMMENT);
 		}
 
+		MiliRank writerMiliRank = MiliRankCalculator.getCurrentRank(info, LocalDateTime.now().toLocalDate());
+
 		// 답글 저장
 		Comment comment = Comment.builder()
 			.post(post)
 			.writer(writer)
+			.writerMiliRank(writerMiliRank)
 			.content(req.body())
 			.imagesUrl(req.imagesUrl())
 			.createdAt(LocalDateTime.now())
@@ -165,7 +171,7 @@ public class CommentService {
 					matchesTarget,
 					info != null && info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
 					info != null ? info.getMiliType() : null,
-					info != null ? info.getMiliStatus() : null,
+					comment.getWriterMiliRank(),
 					isLikedCommentIds.contains(comment.getId()),
 					isDislikedCommentIds.contains(comment.getId())
 				);
