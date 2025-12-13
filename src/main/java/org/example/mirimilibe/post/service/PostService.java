@@ -8,6 +8,8 @@ import java.util.stream.Collectors;
 
 import org.example.mirimilibe.comment.domain.ReactionType;
 import org.example.mirimilibe.comment.repository.CommentRepository;
+import org.example.mirimilibe.common.Enum.MiliRank;
+import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.common.domain.Specialty;
 import org.example.mirimilibe.global.CommonPageResponse;
 import org.example.mirimilibe.global.auth.service.S3UploadService;
@@ -16,6 +18,7 @@ import org.example.mirimilibe.global.error.MilitaryInfoErrorCode;
 import org.example.mirimilibe.global.error.PostErrorCode;
 import org.example.mirimilibe.global.exception.MiriMiliException;
 import org.example.mirimilibe.member.domain.Member;
+import org.example.mirimilibe.member.domain.MiliRankCalculator;
 import org.example.mirimilibe.member.domain.MilitaryInfo;
 import org.example.mirimilibe.member.repository.MemberRepository;
 import org.example.mirimilibe.member.repository.MilitaryInfoRepository;
@@ -65,13 +68,19 @@ public class PostService {
 		Member writer = memberRepository.findById(memberId)
 			.orElseThrow(() -> new MiriMiliException(MemberErrorCode.MEMBER_NOT_FOUND));
 
+		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
+			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
+
 		List<String> safeKeys = Optional.ofNullable(req.imageKeys()).orElse(List.of());
 		if (safeKeys.size() > 5) {
 			throw new IllegalArgumentException("이미지는 최대 5장까지만 업로드할 수 있습니다.");
 		}
 
+		MiliRank writerMiliRank = MiliRankCalculator.getCurrentRank(militaryInfo, LocalDateTime.now().toLocalDate());
+
 		Post post = Post.builder()
 			.writer(writer)
+			.writerMiliRank(writerMiliRank)
 			.title(req.title())
 			.body(req.body())
 			.imageKeys(safeKeys)
@@ -155,8 +164,8 @@ public class PostService {
 			post.getBody(),
 			writer.getNickname(),
 			militaryInfo.getSpecialty() != null ? militaryInfo.getSpecialty().getValue() : null,
-			militaryInfo.getMiliStatus(),
 			militaryInfo.getMiliType(),
+			post.getWriterMiliRank(),
 			post.getCreatedAt(),
 			imageUrls,
 			categoryNames,

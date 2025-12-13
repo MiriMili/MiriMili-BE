@@ -3,7 +3,7 @@ package org.example.mirimilibe.post.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.example.mirimilibe.common.Enum.MiliStatus;
+import org.example.mirimilibe.common.Enum.MiliRank;
 import org.example.mirimilibe.common.Enum.MiliType;
 
 public record PostDetailResponse(
@@ -14,8 +14,8 @@ public record PostDetailResponse(
 
 	String writerNickname,
 	String writerSpecialty,
-	MiliStatus writerStatus,
 	MiliType writerMiliType,
+	MiliRank writerMiliRank,
 
 	LocalDateTime createdAt,
 	List<String> images,

@@ -3,6 +3,7 @@ package org.example.mirimilibe.comment.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.example.mirimilibe.common.Enum.MiliRank;
 import org.example.mirimilibe.common.Enum.MiliStatus;
 import org.example.mirimilibe.common.Enum.MiliType;
 
@@ -18,7 +19,7 @@ public record CommentSummaryResponse(
 
 	String writerSpecialty,
 	MiliType writerMiliType,
-	MiliStatus writerStatus,
+	MiliRank writerMiliRank,
 
 	boolean isLiked,
 	boolean isDisliked
