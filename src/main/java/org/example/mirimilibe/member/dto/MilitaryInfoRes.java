@@ -8,8 +8,8 @@ import org.example.mirimilibe.member.domain.MilitaryInfo;
 
 public record MilitaryInfoRes(
 	MiliType type,
-	Long specialtyId,
-	Long unitId,
+	String specialtyId,
+	String unitId,
 	LocalDate startDate,
 	LocalDate privateDate,
 	LocalDate corporalDate,
@@ -19,8 +19,8 @@ public record MilitaryInfoRes(
 	public static MilitaryInfoRes fromEntity(MilitaryInfo militaryInfo){
 		return new MilitaryInfoRes(
 			militaryInfo.getMiliType(),
-			militaryInfo.getSpecialty()!=null ? militaryInfo.getSpecialty().getId() : null,
-			militaryInfo.getUnit()!=null ? militaryInfo.getUnit().getId() : null,
+			militaryInfo.getSpecialty()!=null ? militaryInfo.getSpecialty().getValue() : null,
+			militaryInfo.getUnit()!=null ? militaryInfo.getUnit().getValue() : null,
 			militaryInfo.getStartDate(),
 			militaryInfo.getPrivateDate(),
 			militaryInfo.getCorporalDate(),
