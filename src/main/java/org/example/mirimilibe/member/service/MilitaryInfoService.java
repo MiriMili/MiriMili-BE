@@ -29,6 +29,7 @@ public class MilitaryInfoService {
 	private final MilitaryInfoRepository militaryInfoRepository;
 	private final SpecialtyRepository specialtyRepository;
 	private final UnitRepository unitRepository;
+	private final MiliStatusService miliStatusService;
 
 
 	public void createMilitaryInfo(MiliStatus miliStatus, Member member) {
@@ -79,6 +80,8 @@ public class MilitaryInfoService {
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
+		miliStatusService.updateMiliStatusToDischarged(militaryInfo);
+
 		MilitaryInfoRes militaryInfoRes=MilitaryInfoRes.fromEntity(militaryInfo);
 
 		return MyPageRes.of(militaryInfo.getMiliStatus(), member.getNickname(), member.getNumber(), militaryInfoRes);
@@ -88,11 +91,7 @@ public class MilitaryInfoService {
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
-		if(militaryInfo.getMiliStatus() != MiliStatus.PRE_ENLISTED) {
-			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_UPDATE);
-		}
-
-		militaryInfo.setMiliStatus(MiliStatus.ENLISTED);
+		miliStatusService.updateMiliStatusToEnlisted(militaryInfo);
 
 		militaryInfoRepository.save(militaryInfo);
 	}
