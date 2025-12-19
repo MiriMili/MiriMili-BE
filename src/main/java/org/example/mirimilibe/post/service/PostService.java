@@ -296,12 +296,14 @@ public class PostService {
 
 		boolean isAnswerable = matchedMili && matchedSpecialty;
 
+		MiliRank currentRank = MiliRankCalculator.getCurrentRank(info, LocalDateTime.now().toLocalDate());
+
 		return new PostMyInfoRes(
 			member.getNickname(),
 			isAnswerable,
 			info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
 			info.getMiliType(),
-			info.getMiliStatus()
+			currentRank
 		);
 
 	}
