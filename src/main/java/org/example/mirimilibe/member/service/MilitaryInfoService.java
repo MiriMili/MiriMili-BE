@@ -57,13 +57,17 @@ public class MilitaryInfoService {
 			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_ACCESS);
 		}
 
-		Specialty specialty = Optional.ofNullable(militaryInfoReq.specialtyId())
-			.flatMap(specialtyRepository::findById)
-			.orElse(null);
+		Specialty specialty = null;
+		if(militaryInfoReq.specialty() != null) {
+			specialty = specialtyRepository.findByValue(militaryInfoReq.specialty())
+				.orElseThrow(() -> new MiriMiliException(MemberErrorCode.SPECIALTY_NOT_FOUND));
+		}
 
-		Unit unit = Optional.ofNullable(militaryInfoReq.unitId())
-			.flatMap(unitRepository::findById)
-			.orElse(null);
+		Unit unit = null;
+		if(militaryInfoReq.unit() != null) {
+			unit = unitRepository.findByValue(militaryInfoReq.unit())
+				.orElseThrow(() -> new MiriMiliException(MemberErrorCode.UNIT_NOT_FOUND));
+		}
 
 		// 2. MilitaryInfoReq를 MilitaryInfo에 적용
 		applyImmutableFields(militaryInfo, militaryInfoReq, specialty, unit);
