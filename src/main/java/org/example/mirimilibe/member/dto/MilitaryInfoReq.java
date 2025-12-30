@@ -9,8 +9,8 @@ import jakarta.validation.constraints.NotNull;
 public record MilitaryInfoReq(
 	@NotNull
 	MiliType type,
-	Long specialtyId,
-	Long unitId,
+	String specialty,
+	String unit,
 	LocalDate startDate,
 	LocalDate privateDate,
 	LocalDate corporalDate,

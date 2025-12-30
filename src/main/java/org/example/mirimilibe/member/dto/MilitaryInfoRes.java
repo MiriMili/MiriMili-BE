@@ -8,8 +8,8 @@ import org.example.mirimilibe.member.domain.MilitaryInfo;
 
 public record MilitaryInfoRes(
 	MiliType type,
-	String specialtyId,
-	String unitId,
+	String specialty,
+	String unit,
 	LocalDate startDate,
 	LocalDate privateDate,
 	LocalDate corporalDate,
