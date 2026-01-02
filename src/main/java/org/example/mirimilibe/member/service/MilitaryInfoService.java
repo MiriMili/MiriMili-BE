@@ -1,5 +1,6 @@
 package org.example.mirimilibe.member.service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -49,7 +50,6 @@ public class MilitaryInfoService {
 	}
 
 	public void updateMilitaryInfo(MilitaryInfoReq militaryInfoReq, Long memberId) {
-		// 1. MilitaryInfo 객체 조회
 		MilitaryInfo militaryInfo = militaryInfoRepository.findByMemberId(memberId)
 			.orElseThrow(() -> new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_NOT_FOUND));
 
@@ -69,10 +69,9 @@ public class MilitaryInfoService {
 				.orElseThrow(() -> new MiriMiliException(MemberErrorCode.UNIT_NOT_FOUND));
 		}
 
-		// 2. MilitaryInfoReq를 MilitaryInfo에 적용
-		applyImmutableFields(militaryInfo, militaryInfoReq, specialty, unit);
+		applyImmutableBaseFields(militaryInfo, militaryInfoReq, specialty, unit);
+		applyDates(militaryInfo, militaryInfoReq);
 
-		// 3. MilitaryInfo 저장
 		militaryInfoRepository.save(militaryInfo);
 	}
 
@@ -100,16 +99,28 @@ public class MilitaryInfoService {
 		militaryInfoRepository.save(militaryInfo);
 	}
 
-	public void applyImmutableFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
+	public void applyImmutableBaseFields(MilitaryInfo info, MilitaryInfoReq req, Specialty specialty, Unit unit) {
 		miliInfoValidateAndSet(info.getMiliType(), req.type(), info::setMiliType);
 		miliInfoValidateAndSet(info.getSpecialty(), specialty, info::setSpecialty);
 		miliInfoValidateAndSet(info.getUnit(), unit, info::setUnit);
 		miliInfoValidateAndSet(info.getStartDate(), req.startDate(), info::setStartDate);
-		miliInfoValidateAndSet(info.getPrivateDate(), req.privateDate(), info::setPrivateDate);
-		miliInfoValidateAndSet(info.getCorporalDate(), req.corporalDate(), info::setCorporalDate);
-		miliInfoValidateAndSet(info.getSergeantDate(), req.sergeantDate(), info::setSergeantDate);
-		miliInfoValidateAndSet(info.getDischargeDate(), req.dischargeDate(), info::setDischargeDate);
 	}
+
+	public void applyDates(MilitaryInfo info, MilitaryInfoReq req) {
+		if(info.getMiliStatus()==MiliStatus.ENLISTED){
+			overwriteIfPresent(req.privateDate(), info::setPrivateDate);
+			overwriteIfPresent(req.corporalDate(), info::setCorporalDate);
+			overwriteIfPresent(req.sergeantDate(), info::setSergeantDate);
+			overwriteIfPresent(req.dischargeDate(), info::setDischargeDate);
+		}
+		else{
+			miliInfoValidateAndSet(info.getPrivateDate(), req.privateDate(), info::setPrivateDate);
+			miliInfoValidateAndSet(info.getCorporalDate(), req.corporalDate(), info::setCorporalDate);
+			miliInfoValidateAndSet(info.getSergeantDate(), req.sergeantDate(), info::setSergeantDate);
+			miliInfoValidateAndSet(info.getDischargeDate(), req.dischargeDate(), info::setDischargeDate);
+		}
+	}
+
 
 	private <T> void miliInfoValidateAndSet(T currentValue, T newValue, Consumer<T> setter) {
 		if (newValue == null) {
@@ -120,5 +131,12 @@ public class MilitaryInfoService {
 		} else if (!currentValue.equals(newValue)) {
 			throw new MiriMiliException(MilitaryInfoErrorCode.MILITARY_INFO_CANNOT_UPDATE);
 		}
+	}
+
+	private void overwriteIfPresent(LocalDate newValue, Consumer<LocalDate> setter) {
+		if (newValue == null) {
+			return;
+		}
+		setter.accept(newValue);
 	}
 }
