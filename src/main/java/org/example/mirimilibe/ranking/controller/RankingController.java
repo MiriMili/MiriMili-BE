@@ -73,7 +73,7 @@ public class RankingController {
             - `writerNickname`: 답변 작성자 닉네임
             - `likeCount`: 답변 좋아요 수
             - `dislikeCount`: 답변 싫어요 수
-            - `specialty`: 답변 작성자 특기
+            - `specialtyId`: 답변 작성자 특기
             - `createdAt`: 답변 작성시간
 
             ## 📝 원본 게시물 정보

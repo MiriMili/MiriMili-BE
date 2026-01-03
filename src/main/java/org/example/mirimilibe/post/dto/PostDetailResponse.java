@@ -13,7 +13,7 @@ public record PostDetailResponse(
 	String body,
 
 	String writerNickname,
-	String writerSpecialty,
+	Long writerSpecialtyId,
 	MiliType writerMiliType,
 	MiliRank writerMiliRank,
 
@@ -22,7 +22,7 @@ public record PostDetailResponse(
 
 	List<String> categories,
 	MiliType targetMiliType,
-	List<String> targetSpecialties,
+	List<Long> targetSpecialtyIds,
 
 	long likeCount,
 	long dislikeCount,

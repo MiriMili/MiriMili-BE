@@ -17,7 +17,7 @@ public record CommentSummaryResponse(
 	long dislikeCount,
 	boolean matchesTarget, // 게시글 조건과 일치하는 특기 or 군구분을 가진 작성자인가?
 
-	String writerSpecialty,
+	Long writerSpecialtyId,
 	MiliType writerMiliType,
 	MiliRank writerMiliRank,
 
