@@ -132,8 +132,8 @@ public class PostService {
 			.toList();
 
 		// Fetch Join으로 specialty까지 한 번에 조회
-		List<String> targetSpecialtyNames = postSpecialtyRepository.findAllByPostWithSpecialty(post).stream()
-			.map(ps -> ps.getSpecialty().getValue())
+		List<Long> targetSpecialtyIds = postSpecialtyRepository.findAllByPostWithSpecialty(post).stream()
+			.map(ps -> ps.getSpecialty().getId())
 			.toList();
 
 		// 댓글 수
@@ -163,14 +163,14 @@ public class PostService {
 			post.getTitle(),
 			post.getBody(),
 			writer.getNickname(),
-			militaryInfo.getSpecialty() != null ? militaryInfo.getSpecialty().getValue() : null,
+			militaryInfo.getSpecialty() != null ? militaryInfo.getSpecialty().getId() : null,
 			militaryInfo.getMiliType(),
 			post.getWriterMiliRank(),
 			post.getCreatedAt(),
 			imageUrls,
 			categoryNames,
 			post.getTargetMiliType(),
-			targetSpecialtyNames,
+			targetSpecialtyIds,
 			likeCount,
 			dislikeCount,
 			commentCount,
@@ -301,7 +301,7 @@ public class PostService {
 		return new PostMyInfoRes(
 			member.getNickname(),
 			isAnswerable,
-			info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
+			info.getSpecialty() != null ? info.getSpecialty().getId() : null,
 			info.getMiliType(),
 			currentRank
 		);

@@ -169,7 +169,7 @@ public class CommentService {
 					likeMap.getOrDefault(comment.getId(), 0L),
 					dislikeMap.getOrDefault(comment.getId(), 0L),
 					matchesTarget,
-					info != null && info.getSpecialty() != null ? info.getSpecialty().getValue() : null,
+					info != null && info.getSpecialty() != null ? info.getSpecialty().getId() : null,
 					info != null ? info.getMiliType() : null,
 					comment.getWriterMiliRank(),
 					isLikedCommentIds.contains(comment.getId()),

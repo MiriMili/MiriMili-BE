@@ -174,9 +174,9 @@ public class RankingService {
             Long dislikeCount = commentLikeRepository.countByCommentIdAndType(comment.getId(), ReactionType.DISLIKE);
 
             Post post = comment.getPost();
-            String specialty = militaryInfoRepository.findByMemberId(comment.getWriter().getId())
+            Long specialtyId = militaryInfoRepository.findByMemberId(comment.getWriter().getId())
                     .map(MilitaryInfo::getSpecialty)
-                    .map(s -> s.getValue())
+                    .map(s -> s.getId())
                     .orElse(null);
 
             return BestAnswerResponse.builder()
@@ -187,7 +187,7 @@ public class RankingService {
                     .createdAt(comment.getCreatedAt())
                     .likeCount(likeCount)
                     .dislikeCount(dislikeCount)
-                    .specialty(specialty)
+                    .specialtyId(specialtyId)
                     .postId(post.getId())
                     .postTitle(post.getTitle())
                     .postBody(post.getBody())

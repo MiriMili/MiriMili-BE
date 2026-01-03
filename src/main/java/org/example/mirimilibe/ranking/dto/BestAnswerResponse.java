@@ -20,7 +20,7 @@ public class BestAnswerResponse {
     private LocalDateTime createdAt;
     private Long likeCount;
     private Long dislikeCount;
-    private String specialty;
+    private Long specialtyId;
 
     // 질문 정보
     private Long postId;

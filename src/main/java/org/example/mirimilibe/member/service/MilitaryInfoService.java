@@ -58,14 +58,14 @@ public class MilitaryInfoService {
 		}
 
 		Specialty specialty = null;
-		if(militaryInfoReq.specialty() != null) {
-			specialty = specialtyRepository.findByValue(militaryInfoReq.specialty())
+		if(militaryInfoReq.specialtyId() != null) {
+			specialty = specialtyRepository.findById(militaryInfoReq.specialtyId())
 				.orElseThrow(() -> new MiriMiliException(MemberErrorCode.SPECIALTY_NOT_FOUND));
 		}
 
 		Unit unit = null;
-		if(militaryInfoReq.unit() != null) {
-			unit = unitRepository.findByValue(militaryInfoReq.unit())
+		if(militaryInfoReq.unitId() != null) {
+			unit = unitRepository.findById(militaryInfoReq.unitId())
 				.orElseThrow(() -> new MiriMiliException(MemberErrorCode.UNIT_NOT_FOUND));
 		}
 
